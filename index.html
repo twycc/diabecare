@@ -1157,51 +1157,51 @@ if('serviceWorker' in navigator){
 if(!D.schedules.length){const now=new Date();const d1=new Date(now);d1.setDate(d1.getDate()+7);const d2=new Date(now);d2.setDate(d2.getDate()+14);const d3=new Date(now);d3.setDate(d3.getDate()+30);D.schedules=[{type:'慢籤',date:d1.toISOString().split('T')[0],time:'09:00',note:'台大醫院藥局領取'},{type:'抽血',date:d2.toISOString().split('T')[0],time:'08:00',note:'空腹抽血 (HbA1c, 肝腎功能)'},{type:'回診',date:d3.toISOString().split('T')[0],time:'14:30',note:'內分泌科 王醫師'}];save()}
 if(D.patients.length){const sel=document.getElementById('care-patient-select');D.patients.forEach((p,i)=>{const opt=document.createElement('option');opt.value='px'+i;opt.textContent=`${p.name} — ${p.type}`;sel.appendChild(opt)})}
 loadProfile();refreshHome();refreshSchedule();
-</script>// 假設使用者輸入的 Nightscout 網址存在 localStorage，或者從你的設定畫面抓取
-async function fetchNightscoutData() {
-  // 這裡替換成你介面上儲存的網址變數，例如 'https://bobolee.my.nightscoutpro.com'
-  const nsUrl = "https://bobolee.my.nightscoutpro.com"; 
+</script>async function fetchNightscoutData() {
+  // 假設你從輸入框取得網址和 Secret (請確認這兩個 ID 是否符合你 HTML 裡的設定)
+  // 如果你的輸入框 ID 不同，請把 'ns-url-input' 和 'ns-secret-input' 換掉
+  const urlInput = document.getElementById('ns-url-input'); 
+  const secretInput = document.getElementById('ns-secret-input');
   
-  if (!nsUrl) return;
+  if (!urlInput || !urlInput.value) return;
+
+  // 清理網址，把結尾多餘的斜線拿掉
+  let nsUrl = urlInput.value.trim().replace(/\/$/, ""); 
+  let apiSecret = secretInput ? secretInput.value.trim() : "";
+
+  // 組合 API 網址，如果有輸入 Secret，就加在網址後面
+  let fetchUrl = `${nsUrl}/api/v1/entries.json?count=1`;
+  if (apiSecret) {
+    fetchUrl += `&token=${apiSecret}`;
+  }
 
   try {
-    // 呼叫 Nightscout API 取得最新一筆資料
-    const response = await fetch(`${nsUrl}/api/v1/entries.json?count=1`);
+    const response = await fetch(fetchUrl);
+    
+    // 如果伺服器回傳 401 (未授權)，代表 Secret 錯誤
+    if (response.status === 401) {
+       throw new Error("權限不足：API Secret 錯誤");
+    }
+
     const data = await response.json();
 
     if (data && data.length > 0) {
       const latestEntry = data[0];
-      const sgv = latestEntry.sgv; // 血糖值
-      const direction = latestEntry.direction; // 趨勢箭頭 (例如 Flat, FortyFiveUp)
+      const sgv = latestEntry.sgv; 
       
-      // 轉換 Nightscout 箭頭為視覺符號 (可自行擴充)
-      const arrowMap = {
-        "Flat": "→", "FortyFiveUp": "↗", "SingleUp": "↑", "DoubleUp": "⇈",
-        "FortyFiveDown": "↘", "SingleDown": "↓", "DoubleDown": "⇊"
-      };
-      const arrow = arrowMap[direction] || "";
-
-      // 更新到首頁的 HTML (對應你截圖中的 ID)
+      // 更新成功畫面
       document.getElementById('h-bg').innerText = sgv;
-      document.getElementById('h-bg-t').innerText = `📡 來自 CGM: ${sgv} ${arrow}`;
-      
-      // 根據數值改變顏色 (例如：> 180 紅色，< 70 藍色，其餘綠色)
-      const bgElement = document.getElementById('h-bg');
-      if (sgv > 180) bgElement.style.color = "var(--danger-red, #ff3b30)";
-      else if (sgv < 70) bgElement.style.color = "var(--warning-blue, #007aff)";
-      else bgElement.style.color = "var(--success-green, #34c759)";
+      document.getElementById('h-bg-t').innerText = `連線成功！最新血糖：${sgv}`;
+      console.log("成功取得數據:", sgv);
+    } else {
+      throw new Error("網址正確，但裡面沒有血糖數據");
     }
   } catch (error) {
     console.error("Nightscout 讀取失敗:", error);
-    document.getElementById('h-bg-t').innerText = "⚠️ Nightscout 連線中斷";
+    // 這裡會觸發你截圖中那個紅色的「無法取得數據」UI
+    document.getElementById('h-bg-t').innerText = "❌ 無法取得數據，請確認網址與權限";
   }
 }
-
-// 網頁載入時抓取一次，之後每 3 分鐘 (180000毫秒) 自動更新一次
-window.addEventListener('load', () => {
-  fetchNightscoutData();
-  setInterval(fetchNightscoutData, 180000); 
-});
 </script>
 </body>
 </html>

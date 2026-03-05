@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="DiabeCare">
+    <meta name="theme-color" content="#a8cc7e">
+    <meta name="description" content="糖尿病患者與照護者的全方位支持 App — 血糖追蹤、CGM 串接、心理照護、AI 陪伴">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-180.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icon-152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icon-96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <!-- iOS Splash Screens -->
+    <link rel="apple-touch-startup-image" href="splash-640x1136.png" media="(device-width:320px) and (device-height:568px) and (-webkit-device-pixel-ratio:2)">
+    <link rel="apple-touch-startup-image" href="splash-750x1334.png" media="(device-width:375px) and (device-height:667px) and (-webkit-device-pixel-ratio:2)">
+    <link rel="apple-touch-startup-image" href="splash-1125x2436.png" media="(device-width:375px) and (device-height:812px) and (-webkit-device-pixel-ratio:3)">
+    <link rel="apple-touch-startup-image" href="splash-1170x2532.png" media="(device-width:390px) and (device-height:844px) and (-webkit-device-pixel-ratio:3)">
+    <link rel="apple-touch-startup-image" href="splash-1179x2556.png" media="(device-width:393px) and (device-height:852px) and (-webkit-device-pixel-ratio:3)">
+    <link rel="apple-touch-startup-image" href="splash-1284x2778.png" media="(device-width:428px) and (device-height:926px) and (-webkit-device-pixel-ratio:3)">
+    <link rel="apple-touch-startup-image" href="splash-1290x2796.png" media="(device-width:430px) and (device-height:932px) and (-webkit-device-pixel-ratio:3)">
+    <title>DiabeCare 糖尿病支持</title>
+    <style>
+:root {
+    --bg: #F5F6F0; --card: #FFFFFF; --green: #a8cc7e; --green-light: #e8f2d8;
+    --yellow: #efdd83; --yellow-light: #faf5d6; --coral: #e79679; --coral-light: #fae4db;
+    --text: #1F2937; --text2: #6B7280;
+    --red: #DC2626; --ok-green: #22c55e; --warn-orange: #F59E0B;
+    --purple: #8B5CF6; --blue: #3B82F6;
+}
+* { box-sizing: border-box; font-family: -apple-system, 'PingFang TC', 'Microsoft JhengHei', sans-serif; -webkit-tap-highlight-color: transparent; }
+body { margin: 0; background: #E5E7EB; display: flex; justify-content: center; align-items: center; height: 100dvh; }
+.app { width: 100%; max-width: 414px; height: 100dvh; max-height: 896px; background: var(--bg); position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,.1); display: flex; flex-direction: column; }
+@media(min-width:420px){ .app { height: 90vh; border-radius: 28px; border: 8px solid #333; } }
+.page { flex:1; overflow-y:auto; padding:20px 16px 100px; display:none; animation: fadeIn .25s; -webkit-overflow-scrolling:touch; }
+.page.active { display:block; }
+#pg-chat.active { display:flex; flex-direction:column; padding-bottom:100px; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.c { background:var(--card); border-radius:14px; padding:18px; margin-bottom:14px; box-shadow:0 2px 10px rgba(0,0,0,.04); }
+.c-tap { transition:transform .12s; cursor:pointer; } .c-tap:active { transform:scale(.97); }
+h1 { font-size:22px; color:var(--text); margin:0 0 4px; }
+h2 { font-size:16px; color:var(--text); margin:0 0 10px; }
+h3 { font-size:14px; color:var(--text); margin:0 0 6px; }
+p { font-size:13px; color:var(--text2); margin:0 0 6px; line-height:1.6; }
+.sec { font-size:11px; color:var(--text2); font-weight:700; letter-spacing:1px; margin:18px 0 10px 2px; text-transform:uppercase; }
+.big { font-size:34px; font-weight:700; line-height:1; }
+.badge { display:inline-block; padding:3px 10px; border-radius:8px; font-size:11px; font-weight:700; }
+.b-green { background:var(--green-light); color:#4a7a20; }
+.b-red { background:#FEE2E2; color:var(--red); }
+.b-ok { background:#D1FAE5; color:#16a34a; }
+.b-orange { background:#FEF3C7; color:var(--warn-orange); }
+.b-purple { background:#EDE9FE; color:var(--purple); }
+.btn { background:var(--green); color:#fff; border:none; padding:12px; border-radius:12px; font-size:15px; font-weight:600; cursor:pointer; width:100%; }
+.btn:active { opacity:.85; transform:scale(.98); }
+.btn-o { background:transparent; border:2px solid var(--green); color:#4a7a20; padding:10px; border-radius:12px; font-size:14px; font-weight:600; cursor:pointer; }
+.btn-sm { padding:8px 16px; font-size:13px; border-radius:10px; width:auto; }
+.row { display:flex; gap:10px; }
+.stat { flex:1; background:var(--card); border-radius:12px; padding:14px; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,.03); }
+.stat-l { font-size:11px; color:var(--text2); margin-bottom:3px; }
+.stat-v { font-size:20px; font-weight:700; color:var(--text); }
+.stat-u { font-size:10px; color:var(--text2); }
+.inp { width:100%; padding:11px 14px; border:2px solid #E5E7EB; border-radius:10px; font-size:14px; outline:none; background:#fff; }
+.inp:focus { border-color:var(--green); }
+.tags { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
+.tag { padding:7px 14px; border-radius:10px; border:2px solid #E5E7EB; font-size:12px; cursor:pointer; background:#fff; color:var(--text); transition:.15s; }
+.tag.on { border-color:var(--green); background:var(--green-light); color:#4a7a20; font-weight:600; }
+.progress { height:7px; background:#E5E7EB; border-radius:4px; overflow:hidden; margin:6px 0; }
+.progress-f { height:100%; border-radius:4px; transition:width .5s; }
+.list-i { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid #F3F4F6; }
+.list-i:last-child { border-bottom:none; }
+.list-ic { width:38px; height:38px; border-radius:10px; display:flex; justify-content:center; align-items:center; font-size:17px; flex-shrink:0; }
+.tab-bar { display:flex; background:#E5E7EB; border-radius:10px; padding:3px; margin-bottom:14px; }
+.tab-i { flex:1; text-align:center; padding:9px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; color:var(--text2); }
+.tab-i.on { background:#fff; color:#4a7a20; box-shadow:0 2px 6px rgba(0,0,0,.06); }
+.widget { position:relative; }
+.widget.hidden { display:none !important; }
+.page-hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.page-hdr-actions { display:flex; gap:8px; align-items:center; }
+.icon-btn { width:36px; height:36px; background:#F3F4F6; border:none; border-radius:10px; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.icon-btn:active { background:#E5E7EB; }
+.mchart { display:flex; align-items:flex-end; gap:3px; height:55px; }
+.mchart-b { flex:1; border-radius:3px 3px 0 0; min-width:7px; transition:height .3s; }
+/* Quick actions: compact small icons */
+.qa { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+.qa-i { background:#fff; border-radius:12px; padding:10px 8px; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,.03); cursor:pointer; transition:.12s; flex:1; min-width:70px; }
+.qa-i:active { transform:scale(.96); }
+.qa-ic { font-size:20px; margin-bottom:4px; }
+.qa-lb { font-size:11px; font-weight:600; color:var(--text); }
+/* Mood: 2-row compact grid */
+.mood-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:8px; }
+.mood-btn { width:42px; height:42px; border-radius:10px; border:2px solid #E5E7EB; background:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:.15s; margin:0 auto; }
+.mood-btn.on { border-color:var(--green); background:var(--green-light); }
+.mood-row2 { display:flex; gap:6px; }
+.mood-lbl { display:flex; align-items:center; gap:4px; padding:7px 12px; border-radius:10px; border:2px solid #E5E7EB; background:#fff; font-size:12px; cursor:pointer; transition:.15s; }
+.mood-lbl.on { border-color:var(--green); background:var(--green-light); }
+.je { display:flex; align-items:center; gap:10px; padding:10px; border-radius:10px; margin-bottom:6px; background:#FAFBFC; }
+.je-m { flex:1; } .je-t { font-size:12px; font-weight:600; color:var(--text); } .je-s { font-size:11px; color:var(--text2); }
+.je-d { color:#D1D5DB; font-size:16px; cursor:pointer; padding:4px; }
+.ch-hd { background:#fff; padding:12px 14px; border-radius:14px; margin-bottom:10px; box-shadow:0 2px 8px rgba(0,0,0,.04); }
+.ch-disc { font-size:10px; color:#9CA3AF; background:#F3F4F6; padding:7px 9px; border-radius:8px; margin-top:8px; line-height:1.5; }
+.ch-area { flex:1; overflow-y:auto; padding-bottom:10px; display:flex; flex-direction:column; gap:12px; -webkit-overflow-scrolling:touch; }
+.msg { max-width:85%; line-height:1.6; font-size:13px; padding:11px 14px; animation:fadeIn .25s; }
+.msg-b { background:#fff; color:var(--text); border-radius:14px 14px 14px 4px; border:1px solid #E5E7EB; align-self:flex-start; }
+.msg-u { background:var(--green); color:#fff; border-radius:14px 14px 4px 14px; align-self:flex-end; }
+.msg-t { font-size:9px; color:#9CA3AF; margin-top:5px; }
+.msg-disc { font-size:10px; color:#9CA3AF; margin-top:6px; padding-top:6px; border-top:1px solid #F3F4F6; font-style:italic; }
+.typing { display:flex; gap:4px; padding:12px; align-self:flex-start; }
+.dot { width:7px; height:7px; background:#D1D5DB; border-radius:50%; animation:bounce 1.2s infinite; }
+.dot:nth-child(2){animation-delay:.2s} .dot:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.chips { display:flex; gap:6px; overflow-x:auto; padding:4px 0 8px; margin-top:auto; }
+.chips::-webkit-scrollbar{display:none}
+.chip { flex-shrink:0; background:#fff; border:1.5px solid #E5E7EB; color:var(--text); padding:7px 13px; border-radius:10px; font-size:12px; font-weight:600; cursor:pointer; }
+.chip:active { border-color:var(--green); color:#4a7a20; background:var(--green-light); }
+.chip.dng { border-color:#FECACA; color:var(--red); background:#FEF2F2; }
+.ch-inp { display:flex; gap:6px; margin-top:6px; background:#fff; padding:5px 5px 5px 14px; border-radius:14px; border:1.5px solid #E5E7EB; align-items:center; }
+.ch-inp:focus-within{border-color:var(--green)}
+.ch-tf { flex:1; border:none; outline:none; padding:7px 0; font-size:14px; background:transparent; }
+.ch-send { background:var(--green); color:#fff; border:none; width:36px; height:36px; border-radius:10px; font-size:16px; display:flex; justify-content:center; align-items:center; cursor:pointer; flex-shrink:0; }
+.sch-i { display:flex; align-items:flex-start; gap:12px; padding:12px 0; border-bottom:1px solid #F3F4F6; position:relative; }
+.sch-i:last-child{border-bottom:none}
+.sch-dot { width:10px; height:10px; border-radius:50%; margin-top:4px; flex-shrink:0; }
+.sch-line { position:absolute; left:4px; top:18px; bottom:-12px; width:2px; background:#E5E7EB; }
+.modal { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,.4); z-index:100; display:none; justify-content:center; align-items:flex-end; }
+.modal.show { display:flex; }
+.modal-s { background:#fff; border-radius:18px 18px 0 0; padding:22px 18px 36px; width:100%; max-width:414px; max-height:85vh; overflow-y:auto; animation:slideUp .3s; }
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-h { width:36px; height:4px; background:#D1D5DB; border-radius:2px; margin:0 auto 18px; }
+.nav { position:absolute; bottom:0; width:100%; height:78px; background:var(--card); border-top:1px solid #E5E7EB; border-radius:16px 16px 0 0; display:flex; justify-content:space-around; align-items:center; box-shadow:0 -2px 12px rgba(0,0,0,.04); padding:0 2px 10px; z-index:10; }
+.nav-i { display:flex; flex-direction:column; align-items:center; color:var(--text2); cursor:pointer; padding:5px 6px; border-radius:8px; min-width:50px; transition:.15s; }
+.nav-i.on { color:#4a7a20; }
+.nav-i:active { background:#F3F4F6; }
+.nav-ic { font-size:21px; margin-bottom:2px; }
+.nav-tx { font-size:9px; font-weight:600; white-space:nowrap; }
+.course-card { background:linear-gradient(135deg,#8B5CF6,#6D28D9); border-radius:14px; padding:20px; color:#fff; margin-bottom:14px; }
+.course-card h3{color:#fff} .course-card p{color:rgba(255,255,255,.85)}
+.group-card { border-left:4px solid var(--purple); }
+.bg-display { text-align:center; padding:24px; background:linear-gradient(135deg,var(--green),#88b860); border-radius:14px; color:#fff; margin-bottom:14px; }
+.bg-display .big { font-size:52px; }
+.toast { position:fixed; top:50px; left:50%; transform:translateX(-50%); background:#1F2937; color:#fff; padding:10px 22px; border-radius:10px; font-size:13px; font-weight:600; z-index:200; animation:fadeIn .3s; }
+.care-select { width:100%; padding:10px 14px; border:2px solid #E5E7EB; border-radius:10px; font-size:14px; background:#fff; outline:none; appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B7280' stroke-width='2' fill='none'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; }
+.map-row { display:flex; gap:10px; }
+.map-btn { flex:1; background:#fff; border-radius:12px; padding:14px 8px; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,.03); cursor:pointer; transition:.12s; text-decoration:none; }
+.map-btn:active { transform:scale(.96); }
+.map-ic { font-size:24px; margin-bottom:4px; }
+.map-lb { font-size:11px; font-weight:600; color:var(--text); }
+/* Home: side-by-side latest + reminders */
+.home-top-row { display:flex; gap:10px; margin-bottom:14px; }
+.home-top-row > div { flex:1; }
+/* CGM/pump mini: side-by-side row */
+.dev-row { display:flex; gap:10px; margin-bottom:14px; }
+.dev-mini { flex:1; background:var(--card); border-radius:12px; padding:12px; box-shadow:0 2px 6px rgba(0,0,0,.03); }
+/* Burnout assessment */
+.burnout-q { padding:10px 0; border-bottom:1px solid #F3F4F6; }
+.burnout-q:last-child { border-bottom:none; }
+.burnout-opts { display:flex; gap:6px; margin-top:6px; }
+.burnout-opt { padding:5px 10px; border-radius:8px; border:1.5px solid #E5E7EB; font-size:11px; cursor:pointer; background:#fff; }
+.burnout-opt.on { border-color:var(--coral); background:var(--coral-light); color:#c0583c; font-weight:600; }
+/* Breath UI enhanced */
+.breath-vis { width:120px; height:120px; border-radius:14px; margin:0 auto 18px; display:flex; align-items:center; justify-content:center; font-size:40px; transition:all 1s; }
+/* 首頁血糖時段列表 */
+.bg-tl { display:flex; flex-wrap:wrap; gap:4px; }
+.bg-tl-i { font-size:10px; padding:3px 6px; border-radius:6px; background:#F3F4F6; color:var(--text2); display:flex; align-items:center; gap:3px; }
+.bg-tl-i b { font-size:11px; }
+    </style>
+</head>
+<body>
+<div class="app">
+
+<!-- ========== 首頁 ========== -->
+<div id="pg-home" class="page active">
+    <div class="page-hdr">
+        <div>
+            <div style="font-size:12px;color:var(--text2)" id="g-date"></div>
+            <h1 id="g-hi">你好 👋</h1>
+        </div>
+        <div class="page-hdr-actions">
+            <button class="icon-btn" onclick="openSettings('home')" title="自訂模組">⚙️</button>
+            <button class="icon-btn" onclick="openModal('m-profile')" title="帳號設定">👤</button>
+        </div>
+    </div>
+    <p style="margin-top:-8px">一起看看今天的血糖狀況吧</p>
+
+    <!-- 上方：最近血糖(左) + 提醒(右) 並排 -->
+    <div class="home-top-row widget" data-page="home" data-wid="latest-bg">
+        <div class="c" style="margin:0;flex:1">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+                <span class="badge b-green">今日血糖</span>
+                <span class="badge" id="h-bg-src" style="background:#F3F4F6;color:var(--text2);font-size:10px">--</span>
+            </div>
+            <!-- 最新一筆大字顯示 -->
+            <div style="display:flex;align-items:baseline;gap:4px"><div class="big" id="h-bg" style="margin:4px 0">--</div><span id="h-bg-dir" style="font-size:20px;font-weight:700"></span></div>
+            <p id="h-bg-t" style="margin:0;font-size:11px">尚無紀錄</p>
+            <!-- 依時段排列的血糖列表 -->
+            <div id="h-bg-timeline" style="margin-top:8px"></div>
+            <button class="btn btn-sm" style="margin-top:8px;width:100%;font-size:12px" onclick="go('pg-journal');setTimeout(()=>openModal('m-log'),300)">+ 記錄血糖</button>
+        </div>
+        <div class="c widget" data-page="home" data-wid="reminders" style="margin:0;flex:1">
+            <h3 style="margin-bottom:8px">⏰ 提醒</h3>
+            <div style="font-size:12px;margin-bottom:8px"><span style="display:inline-block;width:18px">⏰</span> 餐前血糖測量</div>
+            <div style="font-size:12px;margin-bottom:8px"><span style="display:inline-block;width:18px">💊</span> 晚餐後用藥</div>
+            <div style="font-size:12px"><span style="display:inline-block;width:18px">💧</span> 記得喝水</div>
+        </div>
+    </div>
+
+    <!-- 今日統計 -->
+    <div class="row widget" data-page="home" data-wid="today-stats" style="margin-bottom:14px;">
+        <div class="stat"><div class="stat-l">今日平均</div><div class="stat-v" id="h-avg">--</div><div class="stat-u">mg/dL</div></div>
+        <div class="stat"><div class="stat-l">TIR</div><div class="stat-v" id="h-tir">--%</div><div class="stat-u">70-180</div></div>
+        <div class="stat"><div class="stat-l">筆數</div><div class="stat-v" id="h-cnt">0</div><div class="stat-u">筆</div></div>
+    </div>
+
+    <!-- CGM + 幫浦：同一列並排小方塊 -->
+    <div class="dev-row widget" data-page="home" data-wid="cgm-mini">
+        <div class="dev-mini" style="border-left:3px solid var(--ok-green)" onclick="go('pg-device')">
+            <div style="font-size:12px;font-weight:600">📡 CGM</div>
+            <div id="h-cgm-info" style="font-size:11px;color:var(--text2)">未設定</div>
+            <span class="badge" id="h-cgm-badge" style="margin-top:4px;font-size:10px;background:#F3F4F6;color:var(--text2)">⚪ 離線</span>
+        </div>
+        <div class="dev-mini" style="border-left:3px solid var(--blue)" onclick="go('pg-device')">
+            <div style="font-size:12px;font-weight:600">💉 幫浦</div>
+            <div id="h-pump-info" style="font-size:11px;color:var(--text2)">未設定</div>
+            <span class="badge b-green" id="h-pump-badge" style="margin-top:4px;font-size:10px">⚪ 離線</span>
+        </div>
+    </div>
+
+    <!-- 快速操作：小圖示捷徑 -->
+    <div class="sec widget" data-page="home" data-wid="quick-act">快速操作</div>
+    <div class="qa widget" data-page="home" data-wid="quick-act">
+        <div class="qa-i" onclick="openSettings('home')"><div class="qa-ic">⚙️</div><div class="qa-lb">設定</div></div>
+        <div class="qa-i" onclick="go('pg-mind');setTimeout(startBreath,400)"><div class="qa-ic">🧘</div><div class="qa-lb">深呼吸</div></div>
+        <div class="qa-i" onclick="go('pg-mind')"><div class="qa-ic">📚</div><div class="qa-lb">課程</div></div>
+        <div class="qa-i" onclick="showTip()"><div class="qa-ic">💡</div><div class="qa-lb">小知識</div></div>
+    </div>
+
+    <!-- 每日小知識 -->
+    <div class="widget" data-page="home" data-wid="daily-tip">
+        <div style="background:linear-gradient(135deg,var(--green),#88b860);border-radius:14px;padding:18px;color:#fff;margin-bottom:14px">
+            <h3 id="tip-t" style="color:#fff">💡 今日小知識</h3>
+            <p id="tip-c" style="color:rgba(255,255,255,.85)"></p>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 設備頁 ========== -->
+<div id="pg-device" class="page">
+    <div class="page-hdr">
+        <div><h1>📡 我的設備</h1><p style="margin:0">管理 CGM、幫浦與胰島素</p></div>
+        <button class="icon-btn" onclick="openSettings('device')">⚙️</button>
+    </div>
+
+    <!-- CGM + 幫浦並排 + 品牌選擇 -->
+    <div class="dev-row">
+        <div class="c widget" data-page="device" data-wid="cgm" style="flex:1;margin:0;border-left:3px solid var(--ok-green)">
+            <h3 style="margin-bottom:8px">📡 連續血糖監測</h3>
+            <select class="inp" id="dev-cgm-brand" onchange="saveDevSettings()" style="font-size:12px;padding:8px;margin-bottom:6px">
+                <option value="">— 選擇品牌 —</option>
+                <option value="dexcom-g7">Dexcom G7</option>
+                <option value="dexcom-g6">Dexcom G6</option>
+                <option value="libre3plus">Freestyle Libre 3+</option>
+                <option value="libre3">Freestyle Libre 3</option>
+                <option value="libre2">Freestyle Libre 2</option>
+                <option value="guardian4">Medtronic Guardian 4</option>
+                <option value="other-cgm">其他</option>
+            </select>
+            <div style="font-size:11px;color:var(--text2)">感應器剩餘 <b>7 天</b></div>
+            <span class="badge b-ok" style="margin-top:6px">● 已連線</span>
+        </div>
+        <div class="c widget" data-page="device" data-wid="pump" style="flex:1;margin:0;border-left:3px solid var(--blue)">
+            <h3 style="margin-bottom:8px">💉 胰島素幫浦</h3>
+            <select class="inp" id="dev-pump-brand" onchange="saveDevSettings()" style="font-size:12px;padding:8px;margin-bottom:6px">
+                <option value="">— 選擇品牌 —</option>
+                <option value="omnipod5">Omnipod 5</option>
+                <option value="omnipod-dash">Omnipod DASH</option>
+                <option value="tandem">Tandem t:slim X2</option>
+                <option value="medtronic780g">Medtronic 780G</option>
+                <option value="ypso">YpsoPump</option>
+                <option value="other-pump">其他</option>
+                <option value="none">未使用幫浦</option>
+            </select>
+            <div style="font-size:11px;color:var(--text2)">剩餘 <b>85 U</b></div>
+            <span class="badge b-green" style="margin-top:6px">● 運作中</span>
+        </div>
+    </div>
+
+    <!-- 胰島素種類設定 -->
+    <div class="c widget" data-page="device" data-wid="insulin-type">
+        <h2>💉 胰島素種類設定</h2>
+        <p style="margin-bottom:12px">不同胰島素的作用時間會影響血糖波動模式</p>
+        <div style="margin-bottom:12px">
+            <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">速效型（餐前）</label>
+            <select class="inp" id="dev-insulin-rapid" onchange="saveInsulinSettings()">
+                <option value="">— 未設定 —</option>
+                <option value="NovoRapid">NovoRapid (Aspart)</option>
+                <option value="Humalog">Humalog (Lispro)</option>
+                <option value="Apidra">Apidra (Glulisine)</option>
+                <option value="Fiasp">Fiasp (超速效 Aspart)</option>
+                <option value="Lyumjev">Lyumjev (超速效 Lispro)</option>
+                <option value="other-rapid">其他</option>
+            </select>
+            <input type="text" class="inp" id="dev-insulin-rapid-other" placeholder="請輸入速效胰島素名稱" style="display:none;margin-top:6px">
+            <div style="font-size:11px;color:var(--text2);margin-top:4px">起效 5-15 分鐘，高峰 1-2 小時，維持 3-5 小時</div>
+        </div>
+        <div style="margin-bottom:12px">
+            <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">長效型（基礎）</label>
+            <select class="inp" id="dev-insulin-basal" onchange="saveInsulinSettings()">
+                <option value="">— 未設定 —</option>
+                <option value="Lantus">Lantus (Glargine U100)</option>
+                <option value="Toujeo">Toujeo (Glargine U300)</option>
+                <option value="Levemir">Levemir (Detemir)</option>
+                <option value="Tresiba">Tresiba (Degludec)</option>
+                <option value="pump">使用幫浦（無需長效）</option>
+                <option value="other-basal">其他</option>
+            </select>
+            <input type="text" class="inp" id="dev-insulin-basal-other" placeholder="請輸入長效胰島素名稱" style="display:none;margin-top:6px">
+            <div style="font-size:11px;color:var(--text2);margin-top:4px">提供 24 小時基礎胰島素覆蓋</div>
+        </div>
+        <div style="margin-bottom:12px">
+            <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">每日總劑量 TDD（長效＋速效加總）</label>
+            <div class="row" style="margin-bottom:6px">
+                <div style="flex:1"><label style="font-size:11px;color:var(--text2)">長效 U/天</label><input type="number" class="inp" id="dev-tdd-basal" placeholder="0" onchange="calcTDD()"></div>
+                <div style="flex:1"><label style="font-size:11px;color:var(--text2)">速效 U/天</label><input type="number" class="inp" id="dev-tdd-rapid" placeholder="0" onchange="calcTDD()"></div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+                <div style="font-size:12px;color:var(--text2)">TDD 合計 =</div>
+                <div style="font-size:18px;font-weight:700;color:var(--green)" id="dev-tdd-total">0</div>
+                <div style="font-size:12px;color:var(--text2)">U/天</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sec">設備設定</div>
+    <div class="c widget" data-page="device" data-wid="dev-settings">
+        <div class="list-i" style="cursor:pointer"><div class="list-ic" style="background:var(--green-light)">🎯</div><div style="flex:1"><div style="font-size:13px;font-weight:600">目標血糖範圍</div><div style="font-size:11px;color:var(--text2)">70 - 180 mg/dL</div></div><div style="color:#D1D5DB">›</div></div>
+        <div class="list-i" style="cursor:pointer"><div class="list-ic" style="background:var(--yellow-light)">🔔</div><div style="flex:1"><div style="font-size:13px;font-weight:600">高低血糖警報</div><div style="font-size:11px;color:var(--text2)">低於 70 / 高於 250 時通知</div></div><div style="color:#D1D5DB">›</div></div>
+        <div class="list-i" style="cursor:pointer"><div class="list-ic" style="background:#EDE9FE">📊</div><div style="flex:1"><div style="font-size:13px;font-weight:600">匯出報告</div><div style="font-size:11px;color:var(--text2)">產生 PDF 給醫師看診用</div></div><div style="color:#D1D5DB">›</div></div>
+    </div>
+    <!-- Nightscout 串接設定 -->
+    <div class="sec">Nightscout 資料串接</div>
+    <div class="c widget" data-page="device" data-wid="nightscout">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#22c55e,#16a34a);display:flex;align-items:center;justify-content:center;font-size:18px">🌐</div>
+            <div>
+                <h3 style="margin:0">Nightscout 連線設定</h3>
+                <p style="margin:0;font-size:11px">串接你的 Nightscout 站台取得即時 CGM 數據</p>
+            </div>
+        </div>
+        <div style="margin-bottom:10px">
+            <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">Nightscout 網址</label>
+            <input type="url" class="inp" id="dev-ns-url" placeholder="https://your-site.herokuapp.com" onchange="saveNightscoutSettings()">
+            <div style="font-size:10px;color:var(--text2);margin-top:2px">例如：https://mysite.fly.dev 或 https://mysite.azurewebsites.net</div>
+        </div>
+        <div style="margin-bottom:10px">
+            <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">API Secret（選填）</label>
+            <input type="password" class="inp" id="dev-ns-token" placeholder="輸入你的 API secret 或 token" onchange="saveNightscoutSettings()">
+            <div style="font-size:10px;color:var(--text2);margin-top:2px">如果你的站台需要認證，請輸入 API_SECRET 或 token</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+            <button class="btn btn-sm" onclick="testNightscout()" style="flex:1">🔗 測試連線</button>
+            <button class="btn-o btn-sm" onclick="fetchNightscoutNow()" style="flex:1">📡 立即取得數據</button>
+        </div>
+        <div id="ns-status" style="padding:10px;border-radius:10px;background:#F3F4F6;font-size:12px;display:none">
+            <span id="ns-status-icon">⏳</span> <span id="ns-status-text">尚未連線</span>
+        </div>
+        <div id="ns-latest" style="margin-top:10px;display:none">
+            <div style="font-size:11px;color:var(--text2);margin-bottom:4px">最新 Nightscout 數據</div>
+            <div style="display:flex;align-items:baseline;gap:8px">
+                <span id="ns-latest-val" style="font-size:28px;font-weight:700">--</span>
+                <span style="font-size:12px;color:var(--text2)">mg/dL</span>
+                <span id="ns-latest-dir" style="font-size:18px"></span>
+                <span id="ns-latest-time" style="font-size:11px;color:var(--text2);margin-left:auto"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="c" style="background:linear-gradient(135deg,#3B82F6,#8B5CF6);color:#fff">
+        <h3 style="color:#fff">📱 實體設備連結</h3>
+        <p style="color:rgba(255,255,255,.85)">目前透過 Nightscout 串接 CGM 數據。未來版本將支援藍牙直接連結 CGM 與幫浦。</p>
+    </div>
+</div>
+
+<!-- ========== 日誌頁 ========== -->
+<div id="pg-journal" class="page">
+    <div class="page-hdr">
+        <div><h1>📔 健康日誌</h1><p style="margin:0">多面向記錄每一天</p></div>
+        <div class="page-hdr-actions">
+            <button class="icon-btn" onclick="openSettings('journal')">⚙️</button>
+            <button class="btn btn-sm" onclick="openModal('m-log')" style="font-size:18px;padding:6px 14px;border-radius:10px">＋</button>
+        </div>
+    </div>
+    <div class="tab-bar" id="j-tabs">
+        <div class="tab-i on" onclick="filterJournal('all',this)">全部</div>
+        <div class="tab-i" onclick="filterJournal('bg',this)">🩸 血糖</div>
+        <div class="tab-i" onclick="filterJournal('food',this)">🍽️ 飲食</div>
+        <div class="tab-i" onclick="filterJournal('act',this)">🏃 活動</div>
+        <div class="tab-i" onclick="filterJournal('other',this)">📋 更多</div>
+    </div>
+    <div class="c widget" data-page="journal" data-wid="j-overview">
+        <h2>今日血糖概覽</h2>
+        <div class="row" style="margin:0"><div style="flex:1;text-align:center"><div style="font-size:10px;color:var(--text2)">最低</div><div style="font-size:18px;font-weight:700" id="j-min">--</div></div><div style="flex:1;text-align:center;border-left:1px solid #E5E7EB;border-right:1px solid #E5E7EB"><div style="font-size:10px;color:var(--text2)">平均</div><div style="font-size:18px;font-weight:700" id="j-avg">--</div></div><div style="flex:1;text-align:center"><div style="font-size:10px;color:var(--text2)">最高</div><div style="font-size:18px;font-weight:700" id="j-max">--</div></div></div>
+    </div>
+    <div id="j-list"></div>
+</div>
+
+<!-- ========== 心理照護頁（💛✨ 圖示） ========== -->
+<div id="pg-mind" class="page">
+    <h1>💛 心理照護</h1>
+    <p>照顧身體的同時，也別忘了照顧心裡</p>
+
+    <!-- 心情：2 行緊湊排列 -->
+    <div class="c">
+        <h2>今天感覺如何？</h2>
+        <div class="mood-grid">
+            <div class="mood-btn" onclick="pickMood(this,'😊')">😊</div>
+            <div class="mood-btn" onclick="pickMood(this,'😌')">😌</div>
+            <div class="mood-btn" onclick="pickMood(this,'😐')">😐</div>
+            <div class="mood-btn" onclick="pickMood(this,'😔')">😔</div>
+            <div class="mood-btn" onclick="pickMood(this,'😢')">😢</div>
+            <div class="mood-btn" onclick="pickMood(this,'😤')">😤</div>
+            <div class="mood-btn" onclick="pickMood(this,'😰')">😰</div>
+        </div>
+        <div class="mood-row2">
+            <div class="mood-lbl" onclick="pickMood(this,'🤒')">🤒 生病</div>
+            <div class="mood-lbl" onclick="pickMood(this,'🩸')">🩸 月經</div>
+            <div class="mood-lbl" onclick="pickMood(this,'✏️')" id="mood-custom-btn">✏️ 自填</div>
+        </div>
+        <div id="mood-custom-box" style="display:none;margin-top:8px">
+            <input type="text" class="inp" id="mood-custom-inp" placeholder="輸入你的心情..." maxlength="20">
+        </div>
+        <div id="mood-res" style="display:none;padding:10px;background:var(--green-light);border-radius:10px;margin-top:8px">
+            <p id="mood-res-t" style="color:#4a7a20;margin:0;font-weight:500"></p>
+        </div>
+    </div>
+
+    <!-- 糖尿病倦怠評估 -->
+    <div class="c">
+        <h2>🔥 糖尿病倦怠自我檢測</h2>
+        <p>過去兩週，以下狀況符合你嗎？</p>
+        <div id="burnout-qs">
+            <div class="burnout-q"><div style="font-size:13px">1. 覺得控制血糖讓我筋疲力竭</div><div class="burnout-opts" data-q="0"><div class="burnout-opt" onclick="pickBurnout(this,0)">從不</div><div class="burnout-opt" onclick="pickBurnout(this,1)">偶爾</div><div class="burnout-opt" onclick="pickBurnout(this,2)">經常</div><div class="burnout-opt" onclick="pickBurnout(this,3)">總是</div></div></div>
+            <div class="burnout-q"><div style="font-size:13px">2. 覺得糖尿病佔據了我太多心力</div><div class="burnout-opts" data-q="1"><div class="burnout-opt" onclick="pickBurnout(this,0)">從不</div><div class="burnout-opt" onclick="pickBurnout(this,1)">偶爾</div><div class="burnout-opt" onclick="pickBurnout(this,2)">經常</div><div class="burnout-opt" onclick="pickBurnout(this,3)">總是</div></div></div>
+            <div class="burnout-q"><div style="font-size:13px">3. 對血糖數字感到挫折或無力</div><div class="burnout-opts" data-q="2"><div class="burnout-opt" onclick="pickBurnout(this,0)">從不</div><div class="burnout-opt" onclick="pickBurnout(this,1)">偶爾</div><div class="burnout-opt" onclick="pickBurnout(this,2)">經常</div><div class="burnout-opt" onclick="pickBurnout(this,3)">總是</div></div></div>
+            <div class="burnout-q"><div style="font-size:13px">4. 有時會故意不量血糖或不打針</div><div class="burnout-opts" data-q="3"><div class="burnout-opt" onclick="pickBurnout(this,0)">從不</div><div class="burnout-opt" onclick="pickBurnout(this,1)">偶爾</div><div class="burnout-opt" onclick="pickBurnout(this,2)">經常</div><div class="burnout-opt" onclick="pickBurnout(this,3)">總是</div></div></div>
+            <div class="burnout-q"><div style="font-size:13px">5. 覺得沒有人真正理解我的辛苦</div><div class="burnout-opts" data-q="4"><div class="burnout-opt" onclick="pickBurnout(this,0)">從不</div><div class="burnout-opt" onclick="pickBurnout(this,1)">偶爾</div><div class="burnout-opt" onclick="pickBurnout(this,2)">經常</div><div class="burnout-opt" onclick="pickBurnout(this,3)">總是</div></div></div>
+        </div>
+        <button class="btn" onclick="scoreBurnout()" style="margin-top:12px">看看結果</button>
+        <div id="burnout-result" style="display:none;margin-top:12px;padding:14px;border-radius:10px;background:var(--yellow-light)">
+            <div id="burnout-result-text" style="font-size:13px;color:var(--text);line-height:1.7"></div>
+        </div>
+    </div>
+
+    <!-- 呼吸練習 (優化 UI) -->
+    <div class="c c-tap" onclick="startBreath()">
+        <div style="display:flex;align-items:center;gap:14px">
+            <div style="width:50px;height:50px;background:linear-gradient(135deg,var(--green),#88b860);border-radius:12px;display:flex;justify-content:center;align-items:center;font-size:26px;flex-shrink:0">🧘</div>
+            <div><h3>4-7-8 深呼吸練習</h3><p style="margin:0;font-size:12px">吸氣 4 秒 → 屏住 7 秒 → 吐氣 8 秒</p></div>
+        </div>
+    </div>
+    <div id="breath-box" class="c" style="display:none;text-align:center;padding:30px 18px">
+        <div class="breath-vis" id="br-circle" style="background:var(--green-light)">🌿</div>
+        <div id="br-txt" style="font-size:22px;font-weight:700;color:#4a7a20;margin-bottom:6px">準備開始...</div>
+        <div id="br-cnt" style="font-size:13px;color:var(--text2)">跟著節奏慢慢來</div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:16px">
+            <button class="btn-o btn-sm" onclick="stopBreath()">結束練習</button>
+        </div>
+    </div>
+
+    <!-- 線上課程 -->
+    <div class="sec">📚 線上課程</div>
+    <div class="course-card" id="course-section">
+        <div style="display:flex;justify-content:space-between;align-items:start">
+            <div>
+                <h3>🎓 糖尿病心理適應衛教課程</h3>
+                <p>楊景琦臨床心理師｜楊楊心理治療所所長</p>
+            </div>
+            <span class="badge" style="background:rgba(255,255,255,.2);color:#fff">NEW</span>
+        </div>
+        <div style="margin:12px 0;padding:12px;background:rgba(255,255,255,.15);border-radius:10px">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                <span style="font-size:18px">📖</span>
+                <div><div style="font-size:13px;font-weight:600">互動式電子書</div><div style="font-size:11px;opacity:.8">圖文並茂的系統化衛教內容</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+                <span style="font-size:18px">🎧</span>
+                <div><div style="font-size:13px;font-weight:600">專業有聲導讀</div><div style="font-size:11px;opacity:.8">隨時隨地聆聽，通勤照護都適合</div></div>
+            </div>
+        </div>
+        <!-- 預留擴充區：講師介紹、課程內容、金流串接 -->
+        <div id="course-detail-slot" style="display:none"></div>
+        <button class="btn" style="background:rgba(255,255,255,.95);color:#6D28D9;font-weight:700" onclick="alert('課程頁面即將上線，敬請期待！')">查看課程內容 & 購買 →</button>
+        <div style="margin-top:8px;text-align:center"><a href="https://yypsy.com.tw" target="_blank" rel="noopener" style="font-size:11px;color:rgba(255,255,255,.7);text-decoration:underline">了解更多：yypsy.com.tw</a></div>
+    </div>
+
+    <!-- 支持團體 -->
+    <div class="sec">👥 支持團體</div>
+    <div class="c group-card">
+        <span class="badge b-purple">實體</span>
+        <h3 style="margin-top:6px">🧒 T1D 兒童疾病心理適應小團體</h3>
+        <p>幫助第一型糖尿病兒童建立疾病適應能力與自我效能，以遊戲和團體動力促進同儕支持。</p>
+        <button class="btn-o btn-sm" onclick="alert('將跳轉至報名頁面（功能開發中）')">了解詳情 & 報名</button>
+    </div>
+    <div class="c group-card">
+        <span class="badge b-purple">線上 / 實體｜採衛教講座形式</span>
+        <h3 style="margin-top:6px">🤝 T2D 患者支持團體</h3>
+        <p>第二型糖尿病患者的互助支持團體，以衛教講座形式進行，分享血糖管理經驗、飲食策略與心理調適技巧。</p>
+        <button class="btn-o btn-sm" onclick="alert('將跳轉至報名頁面（功能開發中）')">了解詳情 & 報名</button>
+    </div>
+    <div class="c group-card">
+        <span class="badge b-purple">線上 / 實體｜採衛教講座形式</span>
+        <h3 style="margin-top:6px">💚 照顧者支持團體</h3>
+        <p>專為糖尿病患者的家屬與照顧者設計，以衛教講座形式進行，學習照護技巧、紓解照護倦怠、彼此分享經驗。</p>
+        <button class="btn-o btn-sm" onclick="alert('將跳轉至報名頁面（功能開發中）')">了解詳情 & 報名</button>
+    </div>
+
+    <!-- 支持資源（含官網連結） -->
+    <div class="sec">🤝 糖尿病支持組織</div>
+    <div class="c">
+        <a href="https://www.dmsupport.org.tw" target="_blank" rel="noopener" style="text-decoration:none"><div class="list-i"><div class="list-ic" style="background:#DBEAFE">💙</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">社團法人中華民國愛胰協會</div><div style="font-size:11px;color:var(--text2)">推動糖尿病友權益與衛教</div></div><div style="color:var(--green);font-size:12px">官網 →</div></div></a>
+        <a href="https://www.facebook.com/groups/supert1family" target="_blank" rel="noopener" style="text-decoration:none"><div class="list-i"><div class="list-ic" style="background:#FEF3C7">🦸</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">Super T1 Family</div><div style="font-size:11px;color:var(--text2)">第一型糖尿病家庭互助社群</div></div><div style="color:var(--green);font-size:12px">社團 →</div></div></a>
+        <a href="https://www.tade.org.tw/" target="_blank" rel="noopener" style="text-decoration:none"><div class="list-i"><div class="list-ic" style="background:#D1FAE5">🏥</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">中華民國糖尿病衛教學會</div><div style="font-size:11px;color:var(--text2)">專業衛教資源與支持團體資訊</div></div><div style="color:var(--green);font-size:12px">官網 →</div></div></a>
+    </div>
+</div>
+
+<!-- ========== 陪伴聊天頁 ========== -->
+<div id="pg-chat" class="page">
+    <div class="ch-hd">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:40px;height:40px;background:var(--green-light);border-radius:10px;display:flex;justify-content:center;align-items:center;font-size:20px">🧑‍🦳</div>
+                <div><h2 style="margin:0;font-size:16px">照護前輩 阿糖</h2><div style="font-size:11px;color:var(--ok-green);font-weight:500">● 線上陪伴中</div></div>
+            </div>
+            <a href="tel:119" style="text-decoration:none"><button style="background:var(--red);color:#fff;border:none;padding:7px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">📞 119</button></a>
+        </div>
+        <div class="ch-disc">⚠️ <b>免責聲明：</b>前輩僅提供日常照護經驗與公式試算參考，<b>無法取代專業醫療建議</b>。若遇緊急不適，請立即就醫或撥打 119。</div>
+    </div>
+    <div class="ch-area" id="ch-hist">
+        <div class="msg msg-b">嗨！辛苦了！我是有多年照護經驗的 AI 前輩「阿糖」。<br><br>照顧糖寶（或自己）真的不簡單，有什麼我可以幫忙的嗎？<div class="msg-t" id="ch-start"></div></div>
+    </div>
+    <div style="margin-top:auto">
+        <div class="chips">
+            <div class="chip dng" onclick="uMsg('🆘 我現在低血糖了！')">🆘 低血糖急救</div>
+            <div class="chip" onclick="uMsg('🧮 幫我算 ISF 跟 CI')">🧮 算 ISF / CI</div>
+            <div class="chip" onclick="uMsg('🍎 運動前要怎麼準備？')">🍎 運動前準備</div>
+            <div class="chip" onclick="uMsg('💉 忘記打胰島素了')">💉 忘打胰島素</div>
+            <div class="chip" onclick="uMsg('🫂 覺得控制血糖好累...')">🫂 覺得好累...</div>
+            <div class="chip" onclick="uMsg('🤒 生病時血糖怎麼辦？')">🤒 生病日管理</div>
+        </div>
+        <div class="ch-inp">
+            <input type="text" id="ch-input" class="ch-tf" placeholder="輸入訊息問問前輩..." onkeypress="if(event.key==='Enter')sendChat()">
+            <button class="ch-send" onclick="sendChat()">➤</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 照護者頁 ========== -->
+<div id="pg-care" class="page">
+    <h1>🤝 照護者專區</h1>
+    <div class="c">
+        <h2>👁️ 正在觀看的對象</h2>
+        <select class="care-select" id="care-patient-select" onchange="switchPatient()">
+            <option value="p1">糖寶（我的孩子）</option>
+            <option value="p2">王小明 — T1D</option>
+            <option value="p3">李大華 — T2D</option>
+        </select>
+        <div style="display:flex;gap:8px;margin-top:10px">
+            <button class="btn-o btn-sm" style="flex:1" onclick="openModal('m-add-patient')">+ 新增對象</button>
+            <button class="btn-o btn-sm" style="flex:1" onclick="alert('管理照護對象（功能開發中）')">管理名單</button>
+        </div>
+    </div>
+    <div class="bg-display">
+        <div style="font-size:13px;opacity:.85;margin-bottom:4px" id="care-patient-label">糖寶 目前血糖</div>
+        <div class="big" id="care-bg">138</div>
+        <div style="font-size:14px;margin-top:4px">mg/dL <span style="font-size:12px;opacity:.8">· 5 分鐘前更新</span></div>
+        <div style="margin-top:8px;font-size:12px;background:rgba(255,255,255,.2);display:inline-block;padding:4px 12px;border-radius:8px">↗ 趨勢：緩升中</div>
+    </div>
+    <div class="c">
+        <h2>🔔 傳送提醒通知</h2>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <button class="btn-o btn-sm" onclick="sendNotify('該量血糖囉！')">🩸 量血糖</button>
+            <button class="btn-o btn-sm" onclick="sendNotify('記得打胰島素！')">💉 打胰島素</button>
+            <button class="btn-o btn-sm" onclick="sendNotify('該吃飯囉！')">🍽️ 吃飯</button>
+            <button class="btn-o btn-sm" onclick="sendNotify('記得喝水！')">💧 喝水</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+            <input type="text" class="inp" id="notify-custom" placeholder="自訂提醒內容..." style="flex:1">
+            <button class="btn btn-sm" onclick="sendNotify(document.getElementById('notify-custom').value)" style="width:auto">送出</button>
+        </div>
+    </div>
+    <div class="c">
+        <h2>🗓️ 醫療排程</h2>
+        <div id="care-schedule"></div>
+        <button class="btn-o" style="width:100%;margin-top:12px" onclick="openModal('m-schedule')">+ 新增排程</button>
+    </div>
+    <div class="sec">📖 T1D 衛教文章</div>
+    <div class="c">
+        <p style="margin-bottom:10px">來自 <b>yypsy.com.tw</b> 的專業衛教內容</p>
+        <a href="https://yypsy.com.tw" target="_blank" rel="noopener" style="text-decoration:none;display:block">
+            <div class="list-i" style="cursor:pointer"><div class="list-ic" style="background:#DBEAFE">📝</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">T1D 衛教 Blog</div><div style="font-size:11px;color:var(--text2)">yypsy.com.tw 最新文章</div></div><div style="color:var(--green);font-size:12px">前往 →</div></div>
+        </a>
+    </div>
+    <div class="sec">📍 附近醫療資源</div>
+    <div class="map-row">
+        <a href="https://www.google.com/maps/search/內科診所" target="_blank" rel="noopener" class="map-btn"><div class="map-ic">🏥</div><div class="map-lb">內科診所</div></a>
+        <a href="https://www.google.com/maps/search/醫院" target="_blank" rel="noopener" class="map-btn"><div class="map-ic">🏨</div><div class="map-lb">醫院</div></a>
+        <a href="https://www.google.com/maps/search/藥局" target="_blank" rel="noopener" class="map-btn"><div class="map-ic">💊</div><div class="map-lb">藥局</div></a>
+    </div>
+</div>
+
+<!-- Modals -->
+<div class="modal" id="m-profile" onclick="if(event.target===this)closeModal('m-profile')">
+    <div class="modal-s">
+        <div class="modal-h"></div>
+        <h2>👤 帳號設定</h2>
+        <div style="margin-bottom:14px"><label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">顯示名稱</label><input type="text" class="inp" id="prof-name" placeholder="你希望怎麼被稱呼？"></div>
+        <div style="margin-bottom:14px"><label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">帳號 / Email</label><input type="email" class="inp" id="prof-email" placeholder="example@email.com"></div>
+        <div style="margin-bottom:14px"><label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">身份</label><div class="tags" id="prof-role-tags"><div class="tag on" data-val="patient" onclick="selTag(this)">🩺 患者本人</div><div class="tag" data-val="caregiver" onclick="selTag(this)">🤝 照顧者</div><div class="tag" data-val="medical" onclick="selTag(this)">⚕️ 醫療人員</div></div></div>
+        <div style="margin-bottom:14px"><label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">糖尿病類型</label><div class="tags" id="prof-type-tags"><div class="tag on" data-val="T1D" onclick="selTag(this)">T1D</div><div class="tag" data-val="T2D" onclick="selTag(this)">T2D</div><div class="tag" data-val="GDM" onclick="selTag(this)">妊娠糖尿病</div><div class="tag" data-val="other" onclick="selTag(this)">其他/不適用</div></div></div>
+        <button class="btn" onclick="saveProfile()">儲存設定</button>
+        <button class="btn-o" onclick="closeModal('m-profile')" style="width:100%;margin-top:6px">取消</button>
+    </div>
+</div>
+<div class="modal" id="m-log" onclick="if(event.target===this)closeModal('m-log')">
+    <div class="modal-s" onclick="event.stopPropagation()">
+        <div class="modal-h"></div>
+        <h2>📝 新增紀錄</h2>
+        <div style="margin-bottom:14px"><label style="font-size:13px;font-weight:600;color:var(--text);display:block;margin-bottom:8px">紀錄類型</label><div class="tags" id="log-type-tags"><div class="tag on" data-val="bg" onclick="selectLogType(this)">🩸 血糖</div><div class="tag" data-val="food" onclick="selectLogType(this)">🍽️ 飲食</div><div class="tag" data-val="act" onclick="selectLogType(this)">🏃 活動</div><div class="tag" data-val="mood" onclick="selectLogType(this)">😊 心情</div><div class="tag" data-val="event" onclick="selectLogType(this)">📌 重大記事</div><div class="tag" data-val="medical" onclick="selectLogType(this)">🏥 回診/報告</div></div></div>
+        <div id="log-f-bg"><div style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><label style="font-size:13px;font-weight:600;min-width:60px">血糖值</label><input type="number" id="l-bg-val" class="inp" placeholder="mg/dL" min="20" max="600" style="flex:1"></div><label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">時間點</label><div class="tags" id="l-bg-timing"><div class="tag on" data-val="早餐前">早餐前</div><div class="tag" data-val="早餐後">早餐後</div><div class="tag" data-val="午餐前">午餐前</div><div class="tag" data-val="午餐後">午餐後</div><div class="tag" data-val="晚餐前">晚餐前</div><div class="tag" data-val="晚餐後">晚餐後</div><div class="tag" data-val="睡前">睡前</div><div class="tag" data-val="其他">其他</div></div></div>
+        <div id="log-f-food" style="display:none"><div style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><label style="font-size:13px;font-weight:600;min-width:60px">餐次</label><select class="inp" id="l-food-meal"><option>早餐</option><option>午餐</option><option>晚餐</option><option>點心</option></select></div><div style="margin-bottom:10px"><label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">食物內容</label><input type="text" class="inp" id="l-food-desc" placeholder="例：白飯半碗、雞腿、青菜"></div><div style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><label style="font-size:13px;font-weight:600;min-width:80px">碳水估計</label><input type="number" id="l-food-carb" class="inp" placeholder="克 (g)" style="flex:1"></div></div>
+        <div id="log-f-act" style="display:none"><div style="margin-bottom:10px"><label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">活動類型</label><input type="text" class="inp" id="l-act-type" placeholder="例：散步、跑步、游泳、瑜伽"></div><div style="display:flex;gap:10px;margin-bottom:10px"><div style="flex:1"><label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">時間</label><input type="number" class="inp" id="l-act-min" placeholder="分鐘"></div><div style="flex:1"><label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">強度</label><select class="inp" id="l-act-int"><option>輕度</option><option>中度</option><option>高強度</option></select></div></div></div>
+        <div id="log-f-mood" style="display:none"><div class="mood-grid" id="log-mood-pick"><div class="mood-btn" onclick="pickLogMood(this)">😊</div><div class="mood-btn" onclick="pickLogMood(this)">😌</div><div class="mood-btn" onclick="pickLogMood(this)">😐</div><div class="mood-btn" onclick="pickLogMood(this)">😔</div><div class="mood-btn" onclick="pickLogMood(this)">😢</div><div class="mood-btn" onclick="pickLogMood(this)">😤</div><div class="mood-btn" onclick="pickLogMood(this)">😰</div></div></div>
+        <div id="log-f-event" style="display:none"><label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">記事內容</label><textarea class="inp" id="l-event-desc" rows="3" placeholder="例：換了新感應器、學校運動會、外出旅遊..." style="resize:vertical"></textarea></div>
+        <div id="log-f-medical" style="display:none"><div style="margin-bottom:10px"><label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">類型</label><div class="tags" id="l-med-type"><div class="tag on" data-val="回診" onclick="selTag(this)">回診</div><div class="tag" data-val="抽血" onclick="selTag(this)">抽血</div><div class="tag" data-val="報告" onclick="selTag(this)">報告結果</div></div></div><div style="display:flex;gap:10px;margin-bottom:10px"><div style="flex:1"><label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">HbA1c</label><input type="number" step="0.1" class="inp" id="l-med-a1c" placeholder="%"></div><div style="flex:1"><label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">醫師</label><input type="text" class="inp" id="l-med-doc" placeholder="醫師姓名"></div></div><label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">備註</label><textarea class="inp" id="l-med-note" rows="2" placeholder="醫囑、調整內容..." style="resize:vertical"></textarea></div>
+        <div style="display:flex;gap:10px;align-items:center;margin:10px 0"><label style="font-size:13px;font-weight:600;min-width:60px">備註</label><input type="text" id="l-note" class="inp" placeholder="（選填）" style="flex:1"></div>
+        <button class="btn" onclick="saveLog()" style="margin-top:8px">儲存紀錄</button>
+        <button class="btn-o" onclick="closeModal('m-log')" style="width:100%;margin-top:6px">取消</button>
+    </div>
+</div>
+<div class="modal" id="m-schedule" onclick="if(event.target===this)closeModal('m-schedule')">
+    <div class="modal-s">
+        <div class="modal-h"></div>
+        <h2>🗓️ 新增醫療排程</h2>
+        <div class="tags" id="sch-type-tags"><div class="tag on" data-val="回診" onclick="selTag(this)">🏥 回診</div><div class="tag" data-val="抽血" onclick="selTag(this)">🩸 抽血</div><div class="tag" data-val="慢籤" onclick="selTag(this)">💊 慢籤領取</div></div>
+        <div style="display:flex;gap:10px;margin:10px 0"><div style="flex:1"><label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">日期</label><input type="date" class="inp" id="sch-date"></div><div style="flex:1"><label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">時間</label><input type="time" class="inp" id="sch-time"></div></div>
+        <div style="margin-bottom:10px"><label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">地點/備註</label><input type="text" class="inp" id="sch-note" placeholder="例：台大醫院內分泌科"></div>
+        <button class="btn" onclick="saveSchedule()">新增排程</button>
+        <button class="btn-o" onclick="closeModal('m-schedule')" style="width:100%;margin-top:6px">取消</button>
+    </div>
+</div>
+<div class="modal" id="m-add-patient" onclick="if(event.target===this)closeModal('m-add-patient')">
+    <div class="modal-s">
+        <div class="modal-h"></div>
+        <h2>➕ 新增照護對象</h2>
+        <div style="margin-bottom:10px"><label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">姓名/暱稱</label><input type="text" class="inp" id="pt-name" placeholder="例：小明"></div>
+        <div style="margin-bottom:10px"><label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">糖尿病類型</label><div class="tags" id="pt-type-tags"><div class="tag on" data-val="T1D" onclick="selTag(this)">T1D</div><div class="tag" data-val="T2D" onclick="selTag(this)">T2D</div><div class="tag" data-val="other" onclick="selTag(this)">其他</div></div></div>
+        <div style="margin-bottom:10px"><label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">備註</label><input type="text" class="inp" id="pt-note" placeholder="（選填）"></div>
+        <button class="btn" onclick="addPatient()">新增</button>
+        <button class="btn-o" onclick="closeModal('m-add-patient')" style="width:100%;margin-top:6px">取消</button>
+    </div>
+</div>
+<div class="modal" id="m-settings" onclick="if(event.target===this)closeModal('m-settings')">
+    <div class="modal-s">
+        <div class="modal-h"></div>
+        <h2>⚙️ 自訂顯示模組</h2>
+        <p>開關各模組來自訂你的頁面</p>
+        <div id="settings-list"></div>
+        <button class="btn" onclick="closeModal('m-settings')" style="margin-top:12px">完成</button>
+    </div>
+</div>
+
+<!-- 底部導覽 -->
+<div class="nav">
+    <div class="nav-i on" onclick="go('pg-home')" id="n-home"><div class="nav-ic">🏠</div><div class="nav-tx">首頁</div></div>
+    <div class="nav-i" onclick="go('pg-device')" id="n-device"><div class="nav-ic">📡</div><div class="nav-tx">設備</div></div>
+    <div class="nav-i" onclick="go('pg-journal')" id="n-journal"><div class="nav-ic">📔</div><div class="nav-tx">日誌</div></div>
+    <div class="nav-i" onclick="go('pg-mind')" id="n-mind"><div class="nav-ic">💛</div><div class="nav-tx">心理</div></div>
+    <div class="nav-i" onclick="go('pg-chat')" id="n-chat"><div class="nav-ic">💬</div><div class="nav-tx">陪伴</div></div>
+    <div class="nav-i" onclick="go('pg-care')" id="n-care"><div class="nav-ic">🤝</div><div class="nav-tx">照護</div></div>
+</div>
+</div>
+<script>
+// ====== 資料層 ======
+const K='diabecare';
+let D=load();
+function load(){
+    const def={logs:[],moods:[],schedules:[],widgets:{},profile:{name:'',email:'',role:'patient',dType:'T1D'},insulin:{rapid:'',basal:'',tddBasal:'',tddRapid:''},devSettings:{cgmBrand:'',pumpBrand:'',nightscoutUrl:'',nightscoutToken:''},patients:[],nsCache:null};
+    try{const s=localStorage.getItem(K);if(s){const d=JSON.parse(s);return Object.assign(def,d)}}catch(e){}
+    return def;
+}
+function save(){try{localStorage.setItem(K,JSON.stringify(D))}catch(e){}}
+
+// ====== 頁面切換 ======
+function go(id){
+    document.querySelectorAll('.page').forEach(p=>{p.classList.remove('active');p.style.display=''});
+    document.querySelectorAll('.nav-i').forEach(n=>n.classList.remove('on'));
+    const pg=document.getElementById(id);pg.classList.add('active');
+    if(id==='pg-chat')pg.style.display='flex';
+    const ni=document.getElementById(id.replace('pg-','n-'));if(ni)ni.classList.add('on');
+    if(id==='pg-home')refreshHome();
+    if(id==='pg-journal')refreshJournal();
+    if(id==='pg-care')refreshSchedule();
+    if(id==='pg-device')loadDeviceSettings();
+}
+function openModal(id){document.getElementById(id).classList.add('show')}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),300)},2000)}
+function selTag(el){el.parentElement.querySelectorAll('.tag').forEach(t=>t.classList.remove('on'));el.classList.add('on')}
+document.querySelectorAll('#l-bg-timing .tag').forEach(t=>t.addEventListener('click',function(){selTag(this)}));
+
+// ====== 帳號設定 ======
+function saveProfile(){
+    D.profile.name=document.getElementById('prof-name').value.trim();
+    D.profile.email=document.getElementById('prof-email').value.trim();
+    D.profile.role=document.querySelector('#prof-role-tags .tag.on')?.dataset.val||'patient';
+    D.profile.dType=document.querySelector('#prof-type-tags .tag.on')?.dataset.val||'T1D';
+    save();closeModal('m-profile');toast('設定已儲存 ✓');refreshHome();
+}
+function loadProfile(){
+    if(D.profile.name)document.getElementById('prof-name').value=D.profile.name;
+    if(D.profile.email)document.getElementById('prof-email').value=D.profile.email;
+    if(D.profile.role){document.querySelectorAll('#prof-role-tags .tag').forEach(t=>{t.classList.toggle('on',t.dataset.val===D.profile.role)})}
+    if(D.profile.dType){document.querySelectorAll('#prof-type-tags .tag').forEach(t=>{t.classList.toggle('on',t.dataset.val===D.profile.dType)})}
+}
+
+// ====== 胰島素 + 設備設定 ======
+function saveInsulinSettings(){
+    const r=document.getElementById('dev-insulin-rapid');
+    const b=document.getElementById('dev-insulin-basal');
+    D.insulin.rapid=r.value;D.insulin.basal=b.value;
+    document.getElementById('dev-insulin-rapid-other').style.display=r.value==='other-rapid'?'block':'none';
+    document.getElementById('dev-insulin-basal-other').style.display=b.value==='other-basal'?'block':'none';
+    save();toast('胰島素設定已儲存 ✓');
+}
+function calcTDD(){
+    const b=parseFloat(document.getElementById('dev-tdd-basal').value)||0;
+    const r=parseFloat(document.getElementById('dev-tdd-rapid').value)||0;
+    document.getElementById('dev-tdd-total').textContent=Math.round(b+r);
+    D.insulin.tddBasal=b;D.insulin.tddRapid=r;save();
+}
+function saveDevSettings(){
+    D.devSettings.cgmBrand=document.getElementById('dev-cgm-brand').value;
+    D.devSettings.pumpBrand=document.getElementById('dev-pump-brand').value;
+    save();toast('設備設定已儲存 ✓');
+}
+function saveNightscoutSettings(){
+    let url=(document.getElementById('dev-ns-url').value||'').trim();
+    if(url.endsWith('/'))url=url.slice(0,-1);
+    D.devSettings.nightscoutUrl=url;
+    D.devSettings.nightscoutToken=(document.getElementById('dev-ns-token').value||'').trim();
+    save();
+}
+// Nightscout 方向箭頭對照
+const NS_DIR={'Flat':'→','FortyFiveUp':'↗','FortyFiveDown':'↘','SingleUp':'↑','SingleDown':'↓','DoubleUp':'⇈','DoubleDown':'⇊','NONE':''};
+function nsArrow(d){return NS_DIR[d]||d||''}
+// 測試 Nightscout 連線
+async function testNightscout(){
+    const box=document.getElementById('ns-status');box.style.display='block';
+    const icon=document.getElementById('ns-status-icon'),txt=document.getElementById('ns-status-text');
+    icon.textContent='⏳';txt.textContent='連線中...';box.style.background='#FEF3C7';
+    const url=D.devSettings.nightscoutUrl;
+    if(!url){txt.textContent='請先輸入 Nightscout 網址';icon.textContent='⚠️';box.style.background='#FEE2E2';return}
+    try{
+        const headers={};
+        if(D.devSettings.nightscoutToken)headers['api-secret']=D.devSettings.nightscoutToken;
+        const res=await fetch(url+'/api/v1/status.json',{headers,mode:'cors'});
+        if(!res.ok)throw new Error('HTTP '+res.status);
+        const data=await res.json();
+        icon.textContent='✅';txt.textContent='連線成功！站台名稱：'+(data.settings?.customTitle||data.name||'Nightscout');
+        box.style.background='#D1FAE5';
+    }catch(e){
+        icon.textContent='❌';txt.textContent='連線失敗：'+e.message;box.style.background='#FEE2E2';
+    }
+}
+// 從 Nightscout 取得最新 CGM 數據
+async function fetchNightscoutData(){
+    const url=D.devSettings.nightscoutUrl;
+    if(!url)return null;
+    try{
+        const headers={'Accept':'application/json'};
+        if(D.devSettings.nightscoutToken)headers['api-secret']=D.devSettings.nightscoutToken;
+        const res=await fetch(url+'/api/v1/entries/current.json',{headers,mode:'cors'});
+        if(!res.ok)return null;
+        const entries=await res.json();
+        if(!entries||!entries.length)return null;
+        const e=entries[0];
+        const result={value:e.sgv||e.mbg,time:e.dateString||new Date(e.date).toISOString(),source:'cgm',timing:'CGM 即時',direction:e.direction||''};
+        D.nsCache={data:result,fetchedAt:Date.now()};save();
+        return result;
+    }catch(e){
+        console.error('[Nightscout] fetch error:',e);
+        // 離線時用快取
+        if(D.nsCache&&D.nsCache.data)return D.nsCache.data;
+        return null;
+    }
+}
+// 立即取得並顯示 Nightscout 數據
+async function fetchNightscoutNow(){
+    const box=document.getElementById('ns-status');box.style.display='block';
+    const icon=document.getElementById('ns-status-icon'),txt=document.getElementById('ns-status-text');
+    icon.textContent='⏳';txt.textContent='取得數據中...';box.style.background='#FEF3C7';
+    const data=await fetchNightscoutData();
+    if(data&&data.value){
+        icon.textContent='✅';txt.textContent='數據取得成功';box.style.background='#D1FAE5';
+        const lb=document.getElementById('ns-latest');lb.style.display='block';
+        document.getElementById('ns-latest-val').textContent=data.value;
+        document.getElementById('ns-latest-val').style.color=gColor(data.value);
+        document.getElementById('ns-latest-dir').textContent=nsArrow(data.direction);
+        const t=new Date(data.time);
+        document.getElementById('ns-latest-time').textContent=t.getHours()+':'+String(t.getMinutes()).padStart(2,'0');
+        refreshHome();
+    }else{
+        icon.textContent='❌';txt.textContent='無法取得數據，請確認網址與權限';box.style.background='#FEE2E2';
+    }
+}
+function loadDeviceSettings(){
+    if(D.insulin.rapid)document.getElementById('dev-insulin-rapid').value=D.insulin.rapid;
+    if(D.insulin.basal)document.getElementById('dev-insulin-basal').value=D.insulin.basal;
+    if(D.insulin.tddBasal)document.getElementById('dev-tdd-basal').value=D.insulin.tddBasal;
+    if(D.insulin.tddRapid)document.getElementById('dev-tdd-rapid').value=D.insulin.tddRapid;
+    calcTDD();
+    if(D.devSettings.cgmBrand)document.getElementById('dev-cgm-brand').value=D.devSettings.cgmBrand;
+    if(D.devSettings.pumpBrand)document.getElementById('dev-pump-brand').value=D.devSettings.pumpBrand;
+    document.getElementById('dev-insulin-rapid-other').style.display=D.insulin.rapid==='other-rapid'?'block':'none';
+    document.getElementById('dev-insulin-basal-other').style.display=D.insulin.basal==='other-basal'?'block':'none';
+    // Nightscout 設定回填
+    if(D.devSettings.nightscoutUrl)document.getElementById('dev-ns-url').value=D.devSettings.nightscoutUrl;
+    if(D.devSettings.nightscoutToken)document.getElementById('dev-ns-token').value=D.devSettings.nightscoutToken;
+    // 顯示快取的 Nightscout 數據
+    if(D.nsCache&&D.nsCache.data&&D.nsCache.data.value){
+        const lb=document.getElementById('ns-latest');lb.style.display='block';
+        document.getElementById('ns-latest-val').textContent=D.nsCache.data.value;
+        document.getElementById('ns-latest-val').style.color=gColor(D.nsCache.data.value);
+        document.getElementById('ns-latest-dir').textContent=nsArrow(D.nsCache.data.direction);
+        const t=new Date(D.nsCache.data.time);
+        document.getElementById('ns-latest-time').textContent=t.getHours()+':'+String(t.getMinutes()).padStart(2,'0');
+        const box=document.getElementById('ns-status');box.style.display='block';
+        document.getElementById('ns-status-icon').textContent='📡';
+        const age=Math.round((Date.now()-D.nsCache.fetchedAt)/60000);
+        document.getElementById('ns-status-text').textContent='快取數據（'+age+' 分鐘前取得）';
+        box.style.background='#DBEAFE';
+    }
+}
+
+// ====== 首頁 ======
+const tips=[
+    {t:'💡 喝水小提醒',c:'足夠的水分攝取有助於穩定血糖。建議每天至少喝 1500-2000ml 的水。'},
+    {t:'💡 量血糖小撇步',c:'扎手指時避開指尖正中央，改扎側面。記得先洗手、等酒精乾再扎。'},
+    {t:'💡 運動小知識',c:'每天 30 分鐘中等強度運動能提升胰島素敏感度。運動前確認血糖在安全範圍。'},
+    {t:'💡 睡眠與血糖',c:'睡眠不足會增加胰島素阻抗。建議每晚睡 7-8 小時。'},
+    {t:'💡 壓力管理',c:'壓力荷爾蒙（皮質醇）會讓血糖升高。壓力大時做幾次深呼吸能有效穩定。'},
+    {t:'💡 外食技巧',c:'點餐先選蔬菜和蛋白質，飯量減半。吃飯順序：菜→肉→飯。'},
+    {t:'💡 腳部照護',c:'每天檢查腳底有無傷口，穿合腳的鞋子，避免赤腳行走。'}
+];
+function showTip(){const ti=Math.floor(Math.random()*tips.length);toast(tips[ti].c)}
+// 血糖紅綠燈
+function gColor(v){if(v<70)return'var(--red)';if(v<=180)return'var(--ok-green)';if(v<=249)return'var(--warn-orange)';return'var(--red)'}
+// CGM 數據：優先用 Nightscout 快取，否則展示模式
+function getCgmLatest(){
+    if(!D.devSettings)return null;
+    // 1. 優先使用 Nightscout 快取（10 分鐘內的數據視為有效）
+    if(D.nsCache&&D.nsCache.data&&D.nsCache.data.value){
+        const age=(Date.now()-D.nsCache.fetchedAt)/60000;
+        if(age<10)return D.nsCache.data;
+    }
+    // 2. 有設定 Nightscout URL → 背景取得（非同步，下次 refresh 會顯示）
+    if(D.devSettings.nightscoutUrl){
+        fetchNightscoutData().then(()=>{}).catch(()=>{});
+        // 回傳快取（即使過期也先顯示舊值）
+        if(D.nsCache&&D.nsCache.data&&D.nsCache.data.value)return D.nsCache.data;
+        return null;
+    }
+    // 3. 無 Nightscout 但有選 CGM 品牌 → 展示模式
+    if(!D.devSettings.cgmBrand||D.devSettings.cgmBrand==='')return null;
+    const now=new Date();
+    const base=100+Math.round(Math.sin(now.getHours()/3)*30+Math.random()*15);
+    return{value:base,time:now.toISOString(),source:'cgm',timing:'CGM 即時'};
+}
+
+// 時段排序對照表：早到晚
+const TIMING_ORDER={'早餐前':0,'早餐後':1,'午餐前':2,'午餐後':3,'晚餐前':4,'晚餐後':5,'睡前':6,'其他':99};
+function timingRank(t){return TIMING_ORDER[t]!=null?TIMING_ORDER[t]:99}
+
+function refreshHome(){
+  const now=new Date(),h=now.getHours();
+  try{
+    document.getElementById('g-date').textContent=`${now.getMonth()+1}/${now.getDate()} ${'日一二三四五六'[now.getDay()]}`;
+    const name=(D.profile&&D.profile.name)?D.profile.name:'';
+    document.getElementById('g-hi').textContent=(h<12?'早安':h<18?'午安':'晚安')+(name?' '+name:'')+' 👋';
+    const td=now.toDateString();
+    const logs=D.logs||[];
+    const todayManual=logs.filter(l=>l.type==='bg'&&new Date(l.time).toDateString()===td);
+    const allManualBg=logs.filter(l=>l.type==='bg');
+    let cgmData=null;
+    try{cgmData=getCgmLatest()}catch(e){cgmData=null}
+
+    // 依時段排序今日手動血糖（早餐前→...→晚餐後→睡前，「其他」=當下最新排最後）
+    const todaySorted=[...todayManual].sort((a,b)=>timingRank(a.timing)-timingRank(b.timing));
+    // 時段序中最晚的那筆 = 目前最新手動值
+    const latestManualByTiming=todaySorted.length?todaySorted[todaySorted.length-1]:null;
+    // 也看所有日期中最新一筆（給完全沒有今日紀錄時用）
+    const lastManualEver=allManualBg.length?allManualBg[allManualBg.length-1]:null;
+    const lastManual=latestManualByTiming||lastManualEver;
+
+    // 決定「最新一筆」顯示
+    // 校正邏輯：當 CGM 有數據但使用者也有手動輸入時，手動值覆蓋 CGM
+    let latest=null,latestSrc='',isCalibrated=false;
+    if(cgmData&&lastManual){
+        latest=lastManual;latestSrc='🔧 校正';isCalibrated=true;
+    } else if(cgmData){latest=cgmData;latestSrc='📡 CGM'}
+    else if(lastManual){latest=lastManual;latestSrc='✏️ 手動'}
+
+    const allTodayBg=cgmData?[...todayManual,cgmData]:todayManual;
+    const srcEl=document.getElementById('h-bg-src');
+    const bgEl=document.getElementById('h-bg');
+    const tlEl=document.getElementById('h-bg-timeline');
+
+    if(latest&&latest.value){
+        bgEl.textContent=latest.value;
+        bgEl.style.color=gColor(latest.value);
+        // 顯示 Nightscout 方向箭頭
+        const dirEl=document.getElementById('h-bg-dir');
+        if(dirEl){dirEl.textContent=(latest.direction?nsArrow(latest.direction):'');dirEl.style.color=gColor(latest.value)}
+        if(srcEl){
+            srcEl.textContent=latestSrc;
+            if(isCalibrated){srcEl.style.background='var(--coral-light)';srcEl.style.color='#c0583c'}
+            else if(latestSrc.includes('CGM')){srcEl.style.background='#DBEAFE';srcEl.style.color='var(--blue)'}
+            else{srcEl.style.background='var(--yellow-light)';srcEl.style.color='#92730c'}
+        }
+        const t=new Date(latest.time);
+        const isToday=t.toDateString()===td;
+        const dateStr=isToday?'':`${t.getMonth()+1}/${t.getDate()} `;
+        let subText=`${latest.timing||''} · ${dateStr}${t.getHours()}:${String(t.getMinutes()).padStart(2,'0')}`;
+        if(isCalibrated&&cgmData){subText+=` (CGM: ${cgmData.value})`}
+        document.getElementById('h-bg-t').textContent=subText;
+
+        // 今日統計
+        if(allTodayBg.length){
+            const avg=Math.round(allTodayBg.reduce((s,l)=>s+(l.value||0),0)/allTodayBg.length);
+            document.getElementById('h-avg').textContent=avg;
+            const ir=allTodayBg.filter(l=>l.value>=70&&l.value<=180).length;
+            document.getElementById('h-tir').textContent=Math.round(ir/allTodayBg.length*100)+'%';
+            document.getElementById('h-cnt').textContent=allTodayBg.length;
+        } else {
+            document.getElementById('h-avg').textContent='--';document.getElementById('h-tir').textContent='--%';document.getElementById('h-cnt').textContent='0';
+        }
+
+        // 依時段排列今日血糖（用已排序好的 todaySorted）
+        if(tlEl){
+            if(todaySorted.length>0){
+                tlEl.innerHTML='<div class="bg-tl">'+todaySorted.map((l,i)=>{
+                    const c=gColor(l.value);
+                    const isLast=(i===todaySorted.length-1);
+                    const label=l.timing==='其他'?(isLast?'最新':'其他'):l.timing;
+                    return `<div class="bg-tl-i" style="border-left:2px solid ${c}"><span>${label}</span><b style="color:${c}">${l.value}</b></div>`;
+                }).join('')+'</div>';
+            } else { tlEl.innerHTML=''; }
+        }
+    } else {
+        bgEl.textContent='--';bgEl.style.color='var(--text)';
+        document.getElementById('h-bg-t').textContent='尚無血糖紀錄';
+        if(srcEl){srcEl.textContent='無資料';srcEl.style.background='#F3F4F6';srcEl.style.color='var(--text2)';}
+        document.getElementById('h-avg').textContent='--';document.getElementById('h-tir').textContent='--%';document.getElementById('h-cnt').textContent='0';
+        if(tlEl)tlEl.innerHTML='';
+    }
+  }catch(err){console.error('[DiabeCare] refreshHome error:',err);document.getElementById('h-bg').textContent='ERR'}
+  // 更新 CGM / 幫浦 mini 狀態
+  try{
+    const cgmInfo=document.getElementById('h-cgm-info'),cgmBadge=document.getElementById('h-cgm-badge');
+    const pumpInfo=document.getElementById('h-pump-info'),pumpBadge=document.getElementById('h-pump-badge');
+    if(D.devSettings.nightscoutUrl){
+        cgmInfo.textContent='Nightscout';
+        if(D.nsCache&&D.nsCache.data){cgmBadge.textContent='● 已連線';cgmBadge.className='badge b-ok';cgmBadge.style='margin-top:4px;font-size:10px'}
+        else{cgmBadge.textContent='⏳ 連線中';cgmBadge.className='badge b-orange';cgmBadge.style='margin-top:4px;font-size:10px'}
+    }else if(D.devSettings.cgmBrand){
+        const brandNames={'dexcom-g7':'Dexcom G7','dexcom-g6':'Dexcom G6','libre3plus':'Libre 3+','libre3':'Libre 3','libre2':'Libre 2','guardian4':'Guardian 4','other-cgm':'其他 CGM'};
+        cgmInfo.textContent=brandNames[D.devSettings.cgmBrand]||D.devSettings.cgmBrand;
+        cgmBadge.textContent='● 展示模式';cgmBadge.className='badge b-green';cgmBadge.style='margin-top:4px;font-size:10px';
+    }
+    if(D.devSettings.pumpBrand&&D.devSettings.pumpBrand!=='none'){
+        const pumpNames={'omnipod5':'Omnipod 5','omnipod-dash':'Omnipod DASH','tandem':'t:slim X2','medtronic780g':'Medtronic 780G','ypso':'YpsoPump','other-pump':'其他'};
+        pumpInfo.textContent=pumpNames[D.devSettings.pumpBrand]||D.devSettings.pumpBrand;
+        pumpBadge.textContent='● 已設定';pumpBadge.className='badge b-green';pumpBadge.style='margin-top:4px;font-size:10px';
+    }
+  }catch(e){}
+  try{
+    const ti=Math.floor((now.getDate()+now.getMonth())%tips.length);
+    document.getElementById('tip-t').textContent=tips[ti].t;document.getElementById('tip-c').textContent=tips[ti].c;
+  }catch(e){}
+  applyWidgets('home');
+}
+
+// ====== 日誌 ======
+let journalFilter='all';
+function filterJournal(f,el){journalFilter=f;document.querySelectorAll('#j-tabs .tab-i').forEach(t=>t.classList.remove('on'));el.classList.add('on');refreshJournal()}
+function selectLogType(el){document.querySelectorAll('#log-type-tags .tag').forEach(t=>t.classList.remove('on'));el.classList.add('on');const v=el.dataset.val;['bg','food','act','mood','event','medical'].forEach(t=>{const f=document.getElementById('log-f-'+t);if(f)f.style.display=t===v?'block':'none'})}
+function pickLogMood(el){document.querySelectorAll('#log-mood-pick .mood-btn').forEach(b=>b.classList.remove('on'));el.classList.add('on')}
+const typeIcons={bg:'🩸',food:'🍽️',act:'🏃',mood:'😊',event:'📌',medical:'🏥'};
+function saveLog(){
+    const type=document.querySelector('#log-type-tags .tag.on')?.dataset.val||'bg';
+    const entry={type,time:new Date().toISOString(),note:document.getElementById('l-note').value.trim()};
+    if(type==='bg'){const v=parseInt(document.getElementById('l-bg-val').value);if(!v||v<20||v>600){alert('請輸入有效血糖值（20-600）');return}entry.value=v;entry.timing=document.querySelector('#l-bg-timing .tag.on')?.dataset.val||'其他'}
+    else if(type==='food'){entry.meal=document.getElementById('l-food-meal').value;entry.desc=document.getElementById('l-food-desc').value;entry.carb=document.getElementById('l-food-carb').value}
+    else if(type==='act'){entry.actType=document.getElementById('l-act-type').value;entry.minutes=document.getElementById('l-act-min').value;entry.intensity=document.getElementById('l-act-int').value}
+    else if(type==='mood'){const sel=document.querySelector('#log-mood-pick .mood-btn.on');entry.emoji=sel?sel.textContent:'😐'}
+    else if(type==='event'){entry.desc=document.getElementById('l-event-desc').value}
+    else if(type==='medical'){entry.medType=document.querySelector('#l-med-type .tag.on')?.dataset.val||'回診';entry.a1c=document.getElementById('l-med-a1c').value;entry.doctor=document.getElementById('l-med-doc').value;entry.medNote=document.getElementById('l-med-note').value}
+    D.logs.push(entry);save();closeModal('m-log');
+    // 血糖紀錄後切回首頁，讓使用者立刻看到最新數據
+    if(type==='bg'){refreshJournal();go('pg-home');}else{refreshJournal();refreshHome();}
+    let fb='已記錄 ✓';if(type==='bg'){if(entry.value<70)fb='⚠️ 偏低！注意處理';else if(entry.value>250)fb='⚠️ 偏高，請留意'}toast(fb);
+    document.getElementById('l-bg-val').value='';document.getElementById('l-note').value='';document.getElementById('l-food-desc').value='';document.getElementById('l-food-carb').value='';document.getElementById('l-act-type').value='';document.getElementById('l-act-min').value='';document.getElementById('l-event-desc').value='';document.getElementById('l-med-a1c').value='';document.getElementById('l-med-doc').value='';document.getElementById('l-med-note').value='';
+}
+function refreshJournal(){
+    const td=new Date().toDateString();let logs=D.logs.filter(l=>new Date(l.time).toDateString()===td);
+    if(journalFilter!=='all'){if(journalFilter==='other')logs=logs.filter(l=>['mood','event','medical'].includes(l.type));else logs=logs.filter(l=>l.type===journalFilter)}
+    const bgLogs=D.logs.filter(l=>l.type==='bg'&&new Date(l.time).toDateString()===td);
+    if(bgLogs.length){const vs=bgLogs.map(l=>l.value);document.getElementById('j-min').textContent=Math.min(...vs);document.getElementById('j-avg').textContent=Math.round(vs.reduce((a,b)=>a+b,0)/vs.length);document.getElementById('j-max').textContent=Math.max(...vs)}
+    else{document.getElementById('j-min').textContent='--';document.getElementById('j-avg').textContent='--';document.getElementById('j-max').textContent='--'}
+    const list=document.getElementById('j-list');
+    if(!logs.length){list.innerHTML='<div style="text-align:center;padding:30px"><div style="font-size:40px;margin-bottom:8px">📋</div><h3>還沒有紀錄</h3><p>點擊「＋」開始記錄</p></div>';applyWidgets('journal');return}
+    list.innerHTML='';
+    logs.slice().reverse().forEach((l,i)=>{
+        const t=new Date(l.time);const tm=`${t.getHours()}:${String(t.getMinutes()).padStart(2,'0')}`;
+        const e=document.createElement('div');e.className='je';let main='',sub='';
+        if(l.type==='bg'){main=`<span style="color:${gColor(l.value)}">${l.value}</span> mg/dL`;sub=l.timing||''}
+        else if(l.type==='food'){main=l.meal+(l.desc?' · '+l.desc:'');sub=l.carb?l.carb+'g 碳水':''}
+        else if(l.type==='act'){main=l.actType||'運動';sub=[l.minutes?l.minutes+'分鐘':'',l.intensity||''].filter(Boolean).join(' · ')}
+        else if(l.type==='mood'){main=l.emoji||'😐';sub=l.note||''}
+        else if(l.type==='event'){main=l.desc||'記事';sub=''}
+        else if(l.type==='medical'){main=l.medType||'回診';sub=[l.a1c?'A1c:'+l.a1c+'%':'',l.doctor||''].filter(Boolean).join(' · ')}
+        if(l.note&&l.type!=='mood')sub+=(sub?' · ':'')+l.note;
+        e.innerHTML=`<div class="list-ic" style="background:${l.type==='bg'?'#FEE2E2':l.type==='food'?'#FEF3C7':l.type==='act'?'#D1FAE5':l.type==='mood'?'#EDE9FE':l.type==='medical'?'#DBEAFE':'#F3F4F6'}">${typeIcons[l.type]||'📋'}</div><div class="je-m"><div class="je-t">${main}</div><div class="je-s">${tm}${sub?' · '+sub:''}</div></div><div class="je-d" onclick="delLog(${logs.length-1-i})">✕</div>`;
+        list.appendChild(e);
+    });
+    applyWidgets('journal');
+}
+function delLog(idx){if(!confirm('刪除這筆紀錄？'))return;const td=new Date().toDateString();let filtered;if(journalFilter==='all')filtered=D.logs.filter(l=>new Date(l.time).toDateString()===td);else if(journalFilter==='other')filtered=D.logs.filter(l=>new Date(l.time).toDateString()===td&&['mood','event','medical'].includes(l.type));else filtered=D.logs.filter(l=>new Date(l.time).toDateString()===td&&l.type===journalFilter);const target=filtered[idx];if(!target)return;const gi=D.logs.indexOf(target);if(gi>=0)D.logs.splice(gi,1);save();refreshJournal();refreshHome()}
+
+// ====== 心理照護 ======
+function pickMood(el,emoji){
+    document.querySelectorAll('#pg-mind .mood-btn,#pg-mind .mood-lbl').forEach(b=>b.classList.remove('on'));
+    el.classList.add('on');
+    if(emoji==='✏️'){document.getElementById('mood-custom-box').style.display='block';return}
+    document.getElementById('mood-custom-box').style.display='none';
+    const res={'😊':'太棒了！好心情也是血糖管理的一部分 🌟','😌':'心情平靜的一天，很好。','😐':'今天就這樣也沒關係。','😔':'辛苦了。照顧自己真的不容易，今天試試深呼吸練習吧？','😢':'聽到你這麼說，很心疼。如果需要專業支持，可以尋求臨床心理師的協助。','😤':'血糖波動確實會影響情緒，這不是你的錯。先喝杯水，深呼吸。','😰':'焦慮的感覺很不好受，試試下方的呼吸練習，會幫助放鬆。','🤒':'生病時血糖管理特別辛苦，記得多喝水、不要自行停藥。','🩸':'月經期間荷爾蒙變化會影響血糖，這幾天可能需要調整劑量，記得跟醫師討論。'};
+    const r=document.getElementById('mood-res');r.style.display='block';
+    document.getElementById('mood-res-t').textContent=res[emoji]||'謝謝你跟我分享心情 💚';
+    D.moods.push({emoji,time:new Date().toISOString()});save();
+}
+// 倦怠評估
+let burnoutScores=[0,0,0,0,0];
+function pickBurnout(el,score){
+    el.parentElement.querySelectorAll('.burnout-opt').forEach(o=>o.classList.remove('on'));
+    el.classList.add('on');
+    const qi=parseInt(el.parentElement.dataset.q);
+    burnoutScores[qi]=score;
+}
+function scoreBurnout(){
+    const total=burnoutScores.reduce((a,b)=>a+b,0);
+    const el=document.getElementById('burnout-result');el.style.display='block';
+    let msg='';
+    if(total<=4){msg='<b>💚 目前狀況良好</b><br>你的糖尿病管理壓力在可控範圍內。繼續保持，記得適時休息！'}
+    else if(total<=8){msg='<b>💛 輕度倦怠跡象</b><br>有些疲憊是正常的。建議：降低對自己的標準、試試呼吸練習、找人聊聊。如果持續感到困擾，可以考慮尋求臨床心理師的專業支持。'}
+    else if(total<=12){msg='<b>🧡 中度倦怠</b><br>你承受的壓力不小。建議認真考慮尋求專業支持——臨床心理師可以幫助你找到更好的應對方式。記住，尋求幫助是勇敢的表現。'}
+    else{msg='<b>❤️ 明顯倦怠</b><br>你真的辛苦了。強烈建議與臨床心理師談談，也可以參加下方的支持團體。你不是一個人，有人願意陪你走過這段路。'}
+    msg+='<br><br><span style="font-size:11px;color:var(--text2)">⚠️ 此為簡易自我篩檢，不構成臨床診斷。如有需要，請諮詢專業醫療人員。</span>';
+    document.getElementById('burnout-result-text').innerHTML=msg;
+}
+
+// 呼吸練習
+let brTO=null;
+function startBreath(){
+    document.getElementById('breath-box').style.display='block';
+    const vis=document.getElementById('br-circle'),txt=document.getElementById('br-txt'),cnt=document.getElementById('br-cnt');
+    const phases=[
+        {l:'吸氣...',s:4,bg:'var(--green-light)',emoji:'🌬️',scale:'scale(1.2)'},
+        {l:'屏住...',s:7,bg:'var(--yellow-light)',emoji:'✨',scale:'scale(1.2)'},
+        {l:'吐氣...',s:8,bg:'var(--coral-light)',emoji:'🍃',scale:'scale(1)'}
+    ];
+    let ph=0,cy=0,mx=3;
+    function next(){
+        if(cy>=mx){stopBreath();toast('呼吸練習完成 🌿');return}
+        const p=phases[ph];
+        txt.textContent=p.l;cnt.textContent=`第 ${cy+1} / ${mx} 組`;
+        vis.style.background=p.bg;vis.textContent=p.emoji;vis.style.transform=p.scale;
+        brTO=setTimeout(()=>{ph++;if(ph>=3){ph=0;cy++}next()},p.s*1000);
+    }
+    next();
+}
+function stopBreath(){clearTimeout(brTO);document.getElementById('breath-box').style.display='none';const v=document.getElementById('br-circle');v.style.transform='scale(1)';v.style.background='var(--green-light)';v.textContent='🌿'}
+
+// ====== 照護者 ======
+function sendNotify(msg){if(!msg||!msg.trim())return;toast('已傳送提醒：'+msg.trim());document.getElementById('notify-custom').value=''}
+function switchPatient(){const sel=document.getElementById('care-patient-select');const name=sel.options[sel.selectedIndex].text.split('—')[0].trim();document.getElementById('care-patient-label').textContent=name+' 目前血糖'}
+function addPatient(){
+    const name=document.getElementById('pt-name').value.trim();if(!name){alert('請輸入姓名');return}
+    const type=document.querySelector('#pt-type-tags .tag.on')?.dataset.val||'T1D';
+    const note=document.getElementById('pt-note').value.trim();
+    D.patients.push({name,type,note});save();
+    const sel=document.getElementById('care-patient-select');
+    const opt=document.createElement('option');opt.value='p'+(sel.options.length+1);opt.textContent=`${name} — ${type}`;sel.appendChild(opt);
+    closeModal('m-add-patient');toast('已新增照護對象 ✓');
+    document.getElementById('pt-name').value='';document.getElementById('pt-note').value='';
+}
+function saveSchedule(){const type=document.querySelector('#sch-type-tags .tag.on')?.dataset.val||'回診';const date=document.getElementById('sch-date').value;const time=document.getElementById('sch-time').value;const note=document.getElementById('sch-note').value;if(!date){alert('請選擇日期');return}D.schedules.push({type,date,time,note,done:false});D.schedules.sort((a,b)=>new Date(a.date+'T'+(a.time||'00:00'))-new Date(b.date+'T'+(b.time||'00:00')));save();closeModal('m-schedule');refreshSchedule();toast('排程已新增 ✓');document.getElementById('sch-date').value='';document.getElementById('sch-time').value='';document.getElementById('sch-note').value=''}
+function refreshSchedule(){const el=document.getElementById('care-schedule');if(!D.schedules.length){el.innerHTML='<p style="text-align:center;color:var(--text2);padding:16px">尚無排程，點擊下方新增</p>';return}const icons={回診:'🏥',抽血:'🩸',慢籤:'💊'};const colors={回診:'var(--blue)',抽血:'var(--coral)',慢籤:'var(--ok-green)'};el.innerHTML='';D.schedules.forEach((s,i)=>{const d=document.createElement('div');d.className='sch-i';const isPast=new Date(s.date+'T'+(s.time||'23:59'))<new Date();d.innerHTML=`<div class="sch-dot" style="background:${colors[s.type]||'var(--green)'}"></div>${i<D.schedules.length-1?'<div class="sch-line"></div>':''}<div style="flex:1"><div style="font-size:13px;font-weight:600;color:${isPast?'var(--text2)':'var(--text)'}">${icons[s.type]||'📅'} ${s.type} ${isPast?'<span style="font-size:11px;color:var(--text2)">(已過)</span>':''}</div><div style="font-size:12px;color:var(--text2)">${s.date}${s.time?' '+s.time:''}${s.note?' · '+s.note:''}</div></div><div style="font-size:14px;color:#D1D5DB;cursor:pointer" onclick="delSchedule(${i})">✕</div>`;el.appendChild(d)})}
+function delSchedule(i){D.schedules.splice(i,1);save();refreshSchedule()}
+
+// ====== 模組化設定 ======
+const widgetMeta={home:{'latest-bg':'最近血糖+記錄','today-stats':'今日統計','cgm-mini':'CGM / 幫浦狀態','quick-act':'快速操作','daily-tip':'每日小知識','reminders':'提醒事項'},device:{'cgm':'CGM 詳情','pump':'幫浦詳情','insulin-type':'胰島素種類','dev-settings':'設備設定','nightscout':'Nightscout 串接'},journal:{'j-overview':'血糖概覽'}};
+function openSettings(page){const list=document.getElementById('settings-list');list.innerHTML='';const meta=widgetMeta[page]||{};Object.entries(meta).forEach(([wid,label])=>{const hidden=D.widgets[page+'_'+wid]===false;const item=document.createElement('label');item.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #F3F4F6;cursor:pointer;font-size:14px;color:var(--text)';item.innerHTML=`<span>${label}</span><input type="checkbox" ${hidden?'':'checked'} onchange="toggleWidget('${page}','${wid}',this.checked)" style="width:20px;height:20px;accent-color:var(--green)">`;list.appendChild(item)});openModal('m-settings')}
+function toggleWidget(page,wid,show){D.widgets[page+'_'+wid]=show;save();applyWidgets(page)}
+function applyWidgets(page){document.querySelectorAll(`.widget[data-page="${page}"]`).forEach(el=>{const wid=el.dataset.wid;const hidden=D.widgets[page+'_'+wid]===false;el.classList.toggle('hidden',hidden)})}
+
+// ====== AI 聊天 ======
+const DISC='<div class="msg-disc">⚠️ 以上為照護經驗分享，不構成醫療建議。請依醫囑行事，如有疑問請諮詢您的醫療團隊。</div>';
+const chHist=document.getElementById('ch-hist');const chInp=document.getElementById('ch-input');
+document.getElementById('ch-start').textContent=new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
+let waitTDD=false;
+function sendChat(){const t=chInp.value.trim();if(!t)return;chInp.value='';uMsg(t)}
+function uMsg(text){const m=document.createElement('div');m.className='msg msg-u';m.innerHTML=text+`<div class="msg-t">${new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})}</div>`;chHist.appendChild(m);scrollChat();const tp=document.createElement('div');tp.className='typing';tp.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';chHist.appendChild(tp);scrollChat();setTimeout(()=>{tp.remove();botReply(text)},500+Math.random()*700)}
+function addBot(html){const m=document.createElement('div');m.className='msg msg-b';m.innerHTML=html+DISC+`<div class="msg-t">${new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})}</div>`;chHist.appendChild(m);scrollChat()}
+function scrollChat(){setTimeout(()=>chHist.scrollTop=chHist.scrollHeight,50)}
+
+function botReply(text){
+    if(waitTDD){const n=parseInt(text.replace(/[^\d]/g,''));if(n&&n>0&&n<200){waitTDD=false;const isf=Math.round(1800/n),ci=Math.round(500/n);addBot(`TDD = <b>${n} U</b> 的話：<br><br>🔹 <b>ISF ≈ ${isf}</b>（1U 約降 ${isf} mg/dL）<br>🔹 <b>CI ≈ ${ci}</b>（1U 約涵蓋 ${ci}g 碳水）<br><br>💡 下次看診時跟醫師確認這個數字是否適合你！<br>⚠️ 此為 1800/500 法則估算值，實際因人而異。`);return}}
+    if(text.includes('低血糖')||text.includes('🆘')){addBot(`<b>🆘 不要慌，前輩陪你處理！</b><br><br>「<b>15 法則</b>」：<br>1️⃣ 血糖 < 70 → 吃 <b>15g</b> 快速糖分（半瓶養樂多/3 顆方糖/150ml 果汁）<br>2️⃣ 等 <b>15 分鐘</b>再測<br>3️⃣ 仍 < 70 → 再吃一次<br>4️⃣ 回到 70+ 且離下餐 > 1hr → 吃份含蛋白質點心<br><br>💡 <b>口腔黏膜塗抹法</b>：若孩子哭鬧不配合吞嚥，可將蜂蜜或糖漿<b>塗抹在口腔內側黏膜</b>（臉頰內側），糖分可透過黏膜吸收。<br><br><span style="color:var(--red)">⚠️ 意識不清/無法吞嚥 → <b>不要灌食</b> → 側躺 → <b>立即撥 119！</b></span>`)}
+    else if(text.includes('ISF')||text.includes('CI')||text.includes('算')||text.includes('🧮')){waitTDD=true;addBot(`一起概算！<br><br><b>ISF</b> = 1800 ÷ TDD（1U 降多少血糖）<br><b>CI</b> = 500 ÷ TDD（1U 涵蓋幾克碳水）<br><br>你的「<b>每日總劑量 (TDD)</b>」大概是多少？直接打數字！`)}
+    else if(text.includes('運動')||text.includes('🍎')){addBot(`<b>運動前檢查清單：</b><br>✅ 血糖 70-250 mg/dL<br>✅ < 100 → 先吃 15-30g 碳水<br>✅ > 250 → 確認無酮體<br>✅ 備好急救糖<br><br><b>不同運動：</b><br>🏃 有氧 → 血糖通常下降<br>🏋️ 無氧 → 可能短暫升高<br>⚽ 混合型 → 最難預測<br><br>👶 <b>兒童注意事項：</b>孩子活動量大且難預測，運動後可能出現「超補效應」（延遲性低血糖，運動後 4-8 小時）。建議依<b>年齡和體重</b>調整碳水量，年幼或體重較輕的孩子所需碳水量較少，請與醫療團隊討論個別化建議。<br><br>💡 每次記錄血糖變化，幾次後就能抓到規律！`)}
+    else if(text.includes('忘')&&(text.includes('打')||text.includes('胰島素')||text.includes('💉'))){addBot(`還好有想到！我們可以怎麼做：<br><br>💉 <b>速效（餐前）</b>：剛發現可減量補打，過 1-2hr 先測血糖<br>💉 <b>長效（基礎）</b>：< 12hr 可補打，快到下次就等正常時間<br><br>⚠️ <b>絕對不要加倍補打！</b><br>💡 設手機鬧鐘提醒，養成習慣就不容易忘。`)}
+    else if(text.includes('生病')||text.includes('感冒')||text.includes('發燒')||text.includes('🤒')){addBot(`生病時壓力荷爾蒙會讓血糖飆高！<br><br>1️⃣ <b>不能停藥或減少胰島素</b><br>2️⃣ 每 2-4hr 測血糖（+血酮）<br>3️⃣ 沒胃口也要少量多次補水＋碳水<br>4️⃣ 血糖 > 300 / 持續嘔吐 / 血酮 > 1.5 → <b>立即聯繫醫師</b>`)}
+    else if(text.includes('累')||text.includes('🫂')||text.includes('煩')||text.includes('沮喪')||text.includes('放棄')||text.includes('壓力')||text.includes('難過')){const rs=[`前輩真的很心疼。24 小時被數字追著跑，這壓力會把人壓垮。<br><br>你今天做得已經很好了。血糖波動不是你的錯。先深呼吸，給自己倒杯水。<br><br>有什麼想說的盡管說，我會好好聽 💚`,`「糖尿病倦怠」是有研究支持的真實現象，不是你不夠努力。<br><br>前輩建議：把目標從「完美控糖」改成「今天做到一件好事就好」。<br><br>如果需要專業支持，可以在「心理照護」頁面找到支持團體和臨床心理師的資源。`,`你願意說出來就很棒了。不要把委屈往心裡塞。<br><br>你不是一個人在戰鬥。想聊什麼我隨時在這裡 💚`];addBot(rs[Math.floor(Math.random()*rs.length)])}
+    else if(text.includes('碳水')||text.includes('飲食')||text.includes('吃')){addBot(`<b>一份碳水 = 15g</b>：白飯 1/4 碗、吐司 1 片、香蕉半根、鮮奶 240ml ≈ 12g<br><br><b>進食順序：</b>菜 → 肉 → 飯<br><br>💡 便利商店幾乎都有營養標示，是練習碳水計數的好地方！`)}
+    else if(text.includes('高血糖')||text.includes('飆高')){addBot(`<b>180-250：</b>多喝水、確認有無漏打、輕度活動<br><b>> 250：</b>測血酮、依醫囑矯正劑量、不要劇烈運動<br><br><span style="color:var(--red)">🚨 噁心嘔吐+腹痛+呼吸急促 → 可能 DKA → 立即就醫！</span>`)}
+    else if(!isNaN(text.replace(/[^\d]/g,''))&&text.replace(/[^\d]/g,'').length>0){const n=parseInt(text.replace(/[^\d]/g,''));if(n>=1&&n<200){waitTDD=false;const isf=Math.round(1800/n),ci=Math.round(500/n);addBot(`TDD <b>${n} U</b>：<br>🔹 ISF ≈ <b>${isf}</b>（1U ≈ 降 ${isf} mg/dL）<br>🔹 CI ≈ <b>${ci}</b>（1U ≈ 涵蓋 ${ci}g 碳水）<br><br>⚠️ 參考值，請與醫療團隊確認。`)}else{addBot(`收到囉！有任何血糖管理問題隨時問我 💚`)}}
+    else{addBot(`前輩收到囉！你可以問我：<br>• 低血糖怎麼辦<br>• 幫我算 ISF / CI<br>• 運動前準備<br>• 忘記打胰島素<br>• 生病時血糖管理<br><br>或是心情不好想聊聊，我都在 💚`)}
+}
+
+// ====== PWA Service Worker 註冊 ======
+if('serviceWorker' in navigator){
+    window.addEventListener('load',()=>{
+        navigator.serviceWorker.register('./sw.js').then(reg=>{
+            console.log('[DiabeCare] SW registered, scope:',reg.scope);
+            // 有 Nightscout URL 就自動取得最新數據
+            if(D.devSettings&&D.devSettings.nightscoutUrl){
+                fetchNightscoutData().then(data=>{if(data)refreshHome()}).catch(()=>{});
+            }
+        }).catch(err=>console.warn('[DiabeCare] SW registration failed:',err));
+    });
+}
+
+// ====== 初始化 ======
+if(!D.schedules.length){const now=new Date();const d1=new Date(now);d1.setDate(d1.getDate()+7);const d2=new Date(now);d2.setDate(d2.getDate()+14);const d3=new Date(now);d3.setDate(d3.getDate()+30);D.schedules=[{type:'慢籤',date:d1.toISOString().split('T')[0],time:'09:00',note:'台大醫院藥局領取'},{type:'抽血',date:d2.toISOString().split('T')[0],time:'08:00',note:'空腹抽血 (HbA1c, 肝腎功能)'},{type:'回診',date:d3.toISOString().split('T')[0],time:'14:30',note:'內分泌科 王醫師'}];save()}
+if(D.patients.length){const sel=document.getElementById('care-patient-select');D.patients.forEach((p,i)=>{const opt=document.createElement('option');opt.value='px'+i;opt.textContent=`${p.name} — ${p.type}`;sel.appendChild(opt)})}
+loadProfile();refreshHome();refreshSchedule();
+</script>
+</body>
+</html>
